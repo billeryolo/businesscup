@@ -71,23 +71,25 @@ function Ears({ look }: { look: Look }) {
   }
 }
 
-/** Blinks at slightly random intervals so a row of avatars doesn't blink in unison. */
+/**
+ * Blinks every second or two, at slightly random moments so a row of avatars doesn't blink in
+ * unison. About one blink in four is a quick double.
+ */
 function useBlink(enabled: boolean) {
   const [closed, setClosed] = useState(false);
   useEffect(() => {
     if (!enabled) return;
     let timer: ReturnType<typeof setTimeout>;
+    const blink = (again: boolean) => {
+      setClosed(true);
+      timer = setTimeout(() => {
+        setClosed(false);
+        if (again) timer = setTimeout(() => blink(false), 130);
+        else schedule();
+      }, 130);
+    };
     const schedule = () => {
-      timer = setTimeout(
-        () => {
-          setClosed(true);
-          timer = setTimeout(() => {
-            setClosed(false);
-            schedule();
-          }, 140);
-        },
-        2200 + Math.random() * 2600,
-      );
+      timer = setTimeout(() => blink(Math.random() < 0.25), 1100 + Math.random() * 1700);
     };
     schedule();
     return () => clearTimeout(timer);
