@@ -19,16 +19,17 @@ security (each parent sees only their own rows), and adds `delete_my_account()`.
 
 ## 3. Deploy on Vercel
 
-1. <https://vercel.com/new> → import **billeryolo/zimran**.
-2. **Root Directory**: `reading-check` (Framework: Next.js is detected).
+1. <https://vercel.com/new> → import **billeryolo/businesscup**.
+2. **Root Directory**: leave it as the repo root (Framework: Next.js is detected).
 3. **Environment Variables** (Production and Preview):
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — from step 1
    - `ANTHROPIC_API_KEY` — optional, mark it Sensitive; without it the rules write the summary
+   - `SPEECH_URL`, `SPEECH_TOKEN` — optional, the speech service (see `speech/README.md`)
    - `CONTACT_EMAIL` — optional, shown on the privacy and terms pages
-4. **Deploy.** The production branch is the repo's default branch
-   (`claude/sharp-ramanujan-4x0rdu`), so every push to it redeploys.
+4. **Deploy.** The production branch is `main`, so every merge to it redeploys, and every PR
+   gets a preview link.
 5. On the free plan, Vercel only builds commits whose author email is linked to your GitHub
-   account. Commits in this repo use the same email as Studypath.
+   account.
 
 `NEXT_PUBLIC_…` values are built into the page, so after changing them, redeploy.
 
