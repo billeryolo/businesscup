@@ -135,10 +135,10 @@ export function normFor(kind: CheckKind, grade: GradeLevel, season: Season): Nor
     case "wordList":
       return grade === "K" ? make(DIBELS_WRF_K[season], "published", "DIBELS 8 WRF") : null;
     case "letterNaming":
-      if (grade === "preK") return make(PREK_LETTERS_ESTIMATE[season], "estimate", "ReadCheck estimate");
+      if (grade === "preK") return make(PREK_LETTERS_ESTIMATE[season], "estimate", "ReadBuddy estimate");
       return make(DIBELS_LNF[grade]?.[season], "published", "DIBELS 8 LNF");
     case "numberNaming":
-      return make(NUMBERS_ESTIMATE[grade]?.[season], "estimate", "ReadCheck estimate");
+      return make(NUMBERS_ESTIMATE[grade]?.[season], "estimate", "ReadBuddy estimate");
     case "mathFacts": {
       if (!isSchoolGrade(grade)) return null;
       const goals = Object.values(ROCKET_MATH[grade][season]);

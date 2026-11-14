@@ -87,7 +87,7 @@ export type MathOp = "+" | "-" | "×" | "÷";
 /** The norm a result was compared with. */
 export type NormUsed = {
   source: "published" | "estimate";
-  /** e.g. "Hasbrouck & Tindal 2017", "DIBELS 8 LNF", "Rocket Math 2024", "ReadCheck estimate". */
+  /** e.g. "Hasbrouck & Tindal 2017", "DIBELS 8 LNF", "Rocket Math 2024", "ReadBuddy estimate". */
   sourceName: string;
   grade: GradeLevel;
   season: Season;

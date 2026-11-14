@@ -1,4 +1,4 @@
-"""ReadCheck speech service on Modal: wav2vec2 + Whisper on one GPU.
+"""ReadBuddy speech service on Modal: wav2vec2 + Whisper on one GPU.
 
 One recording in, two transcripts with word timings out. The Next.js route /api/transcribe aligns
 both against the passage and decides each word (src/lib/speech/merge.ts).
