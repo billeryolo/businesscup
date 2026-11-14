@@ -1,16 +1,17 @@
 // What a child does today, and what the assistant says about it on Home. Rules only for now: the
 // real plan and the real assistant come from the backend later.
 
+import type { IconName } from "@/components/icons";
 import type { CheckRecord } from "@/lib/store/checks";
 import { archetypeFor, type Kid, minutesFor } from "@/lib/store/family";
 
-export type Activity = { id: "hear-a-letter" | "big-word" | "speed-math" | "story"; title: string; emoji: string; tone: string; minutes: number };
+export type Activity = { id: "hear-a-letter" | "big-word" | "speed-math" | "story"; title: string; icon: IconName; tone: string; minutes: number };
 
 const GAMES: Record<Activity["id"], Omit<Activity, "minutes">> = {
-  "hear-a-letter": { id: "hear-a-letter", title: "Hear a letter", emoji: "🔤", tone: "bg-mint" },
-  "big-word": { id: "big-word", title: "Big word", emoji: "📖", tone: "bg-lilac" },
-  "speed-math": { id: "speed-math", title: "Speed math", emoji: "⚡", tone: "bg-peach" },
-  story: { id: "story", title: "Story about…", emoji: "🦄", tone: "bg-candy" },
+  "hear-a-letter": { id: "hear-a-letter", title: "Hear a letter", icon: "letters", tone: "bg-mint" },
+  "big-word": { id: "big-word", title: "Big word", icon: "book", tone: "bg-lilac" },
+  "speed-math": { id: "speed-math", title: "Speed math", icon: "bolt", tone: "bg-peach" },
+  story: { id: "story", title: "Story about…", icon: "wand", tone: "bg-candy" },
 };
 
 /** Three short games that add up to the day's minutes: letters first for the youngest, reading for the oldest. */

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AnimalAvatar, AvatarBubble } from "@/components/avatars/animal";
+import { Icon, type IconName } from "@/components/icons";
 import { ScreenHeader, Stagger } from "@/components/app/screen";
 import { VERDICT_LABEL } from "@/lib/checks/result";
 import { assistantNote, todayFor } from "@/lib/plan/today";
@@ -37,8 +38,8 @@ function Today({ kid }: { kid: Kid }) {
       <ul className="mt-5 grid gap-2">
         {activities.map((a, i) => (
           <motion.li key={a.id} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.08 }} className="flex items-center gap-3 rounded-2xl bg-white/60 px-3 py-2.5">
-            <span className={`grid h-9 w-9 flex-none place-items-center rounded-xl text-lg ${a.tone}`} aria-hidden="true">
-              {a.emoji}
+            <span className={`grid h-9 w-9 flex-none place-items-center rounded-xl ${a.tone}`}>
+              <Icon name={a.icon} size={22} />
             </span>
             <span className="text-[15px] font-medium">{a.title}</span>
             <span className="ml-auto text-xs font-medium text-night/60">{a.minutes} min</span>
@@ -47,7 +48,7 @@ function Today({ kid }: { kid: Kid }) {
       </ul>
       <motion.div whileTap={{ scale: 0.96 }} className="mt-5">
         <Link href="/play" className="flex h-14 items-center justify-center gap-2 rounded-full bg-night text-base font-semibold text-white">
-          <span aria-hidden="true">▶</span> Play with {kid.name}
+          <Icon name="play" size={18} /> Play with {kid.name}
         </Link>
       </motion.div>
       <p className="mt-2.5 text-center text-xs text-night/60">Opens kid mode. Hand the phone over.</p>
@@ -55,11 +56,11 @@ function Today({ kid }: { kid: Kid }) {
   );
 }
 
-function Stat({ emoji, value, label, tone }: { emoji: string; value: number; label: string; tone: string }) {
+function Stat({ icon, value, label, tone }: { icon: IconName; value: number; label: string; tone: string }) {
   return (
     <div className={`flex items-center gap-3 rounded-[24px] p-4 ${tone}`}>
-      <motion.span className="text-2xl" aria-hidden="true" animate={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 2.4 }}>
-        {emoji}
+      <motion.span animate={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 2.4 }}>
+        <Icon name={icon} size={32} />
       </motion.span>
       <span>
         <span className="block text-xl font-semibold leading-none">{value}</span>
@@ -145,8 +146,8 @@ export default function HomePage() {
       <Today key={active.id} kid={active} />
 
       <div className="grid grid-cols-2 gap-3">
-        <Stat emoji="⭐" value={active.stars} label="stars" tone="bg-peach/60" />
-        <Stat emoji="🔥" value={active.streakDays} label="days in a row" tone="bg-candy/50" />
+        <Stat icon="star" value={active.stars} label="stars" tone="bg-peach/60" />
+        <Stat icon="flame" value={active.streakDays} label="days in a row" tone="bg-candy/50" />
       </div>
 
       <WeeklyCheck kid={active} latest={latest} />

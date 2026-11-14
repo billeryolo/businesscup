@@ -6,6 +6,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { AvatarBubble } from "@/components/avatars/animal";
+import { Icon, type IconName } from "@/components/icons";
 import { checksFor } from "@/lib/checks/quick";
 import { quickView, readingView, type ResultView } from "@/lib/checks/result";
 import type { Grade as ReadingGrade } from "@/lib/reading/norms";
@@ -17,10 +18,10 @@ import { QuickCheck } from "./quick-check";
 import { ReadingCheck } from "./reading-check";
 import { ResultScreen } from "./result";
 
-const CHECKS: Record<CheckKind, { title: string; body: string; emoji: string; tone: string }> = {
-  reading: { title: "Reading", body: "Reads a short story out loud. We count words read correctly.", emoji: "📖", tone: "bg-lilac" },
-  math: { title: "Math", body: "Answers as many quick facts as they can.", emoji: "➕", tone: "bg-peach/70" },
-  letters: { title: "Letters", body: "Names the letters that pop up.", emoji: "🔤", tone: "bg-mint" },
+const CHECKS: Record<CheckKind, { title: string; body: string; icon: IconName; tone: string }> = {
+  reading: { title: "Reading", body: "Reads a short story out loud. We count words read correctly.", icon: "book", tone: "bg-lilac" },
+  math: { title: "Math", body: "Answers as many quick facts as they can.", icon: "plus", tone: "bg-peach/70" },
+  letters: { title: "Letters", body: "Names the letters that pop up.", icon: "letters", tone: "bg-mint" },
 };
 
 function Pick({ kid, exitLabel, onPick, onExit }: { kid: Kid; exitLabel: string; onPick: (kind: CheckKind) => void; onExit: () => void }) {
@@ -47,8 +48,8 @@ function Pick({ kid, exitLabel, onPick, onExit }: { kid: Kid; exitLabel: string;
               onClick={() => onPick(kind)}
               className={`flex items-center gap-4 rounded-[28px] p-5 text-left ${c.tone}`}
             >
-              <span className="grid h-14 w-14 flex-none place-items-center rounded-2xl bg-white/70 text-2xl" aria-hidden="true">
-                {c.emoji}
+              <span className="grid h-14 w-14 flex-none place-items-center rounded-2xl bg-white/70">
+                <Icon name={c.icon} size={34} />
               </span>
               <span>
                 <span className="block text-lg font-semibold">{c.title}</span>
