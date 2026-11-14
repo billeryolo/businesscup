@@ -80,7 +80,7 @@ function Bubble({ message }: { message: ChatMessage }) {
       initial={{ opacity: 0, y: 12, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 380, damping: 30 }}
-      className={`max-w-[86%] px-4 py-3 text-[15px] leading-relaxed ${
+      className={`max-w-[86%] flex-none px-4 py-3 text-[15px] leading-relaxed ${
         mine ? "self-end rounded-[22px] rounded-br-lg bg-night text-white" : `self-start rounded-[22px] rounded-bl-lg bg-white ${soft}`
       }`}
     >
@@ -201,38 +201,38 @@ export function AssistantChat() {
             <Link href="/home" className="mt-6 rounded-full bg-night px-6 py-3.5 text-sm font-semibold text-white">Go to Home</Link>
           </div>
         ) : !chatting ? (
-          <div className="relative z-10 flex flex-1 flex-col items-center overflow-y-auto px-5 pb-2">
-            <motion.span layoutId="pearl" className="mt-[5dvh]" transition={{ type: "spring", stiffness: 260, damping: 28 }}>
+          <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-5 pb-2 [scrollbar-width:none]">
+            <motion.span layoutId="pearl" className="mt-[5dvh] flex-none" transition={{ type: "spring", stiffness: 260, damping: 28 }}>
               <Orb size={156} />
             </motion.span>
-            <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mt-9 text-night-soft">
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1, duration: 0.35 }} className="mt-9 flex-none text-night-soft">
               Hello!
             </motion.p>
-            <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="mt-1 text-center text-[30px] font-semibold leading-[1.15] tracking-tight">
+            <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15, duration: 0.35 }} className="mt-1 flex-none text-center text-[30px] font-semibold leading-[1.15] tracking-tight">
               How can I help
               <br />
               with {active.name} today?
             </motion.h1>
-            <div className="mt-auto grid w-full grid-cols-2 gap-3 pt-8">
+            <div className="mt-auto grid w-full flex-none grid-cols-2 gap-3 pt-8">
               {suggestionsFor(active.name).map((s, i) => (
                 <motion.button
                   key={s.label}
                   type="button"
                   onClick={() => send(s.ask)}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.26 + i * 0.07, type: "spring", stiffness: 300, damping: 26 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 + i * 0.06, duration: 0.35 }}
                   whileTap={{ scale: 0.96 }}
-                  className={`flex min-h-[96px] flex-col items-start justify-between gap-3 rounded-[24px] bg-white/85 p-4 text-left text-sm font-medium leading-snug backdrop-blur ${soft}`}
+                  className={`flex min-h-[96px] flex-col items-start justify-between gap-3 rounded-[24px] bg-white/85 p-4 text-left text-sm font-medium leading-snug ${soft}`}
                 >
-                  <Icon name={s.icon} size={26} />
+                  <Icon name={s.icon} size={26} className="flex-none" />
                   {s.label}
                 </motion.button>
               ))}
             </div>
           </div>
         ) : (
-          <div ref={list} className="relative z-10 flex flex-1 flex-col gap-3 overflow-y-auto px-5 pb-4 pt-2" aria-live="polite">
+          <div ref={list} className="relative z-10 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 pb-4 pt-2" aria-live="polite">
             {messages.map((m, i) => (
               <Bubble key={i} message={m} />
             ))}
