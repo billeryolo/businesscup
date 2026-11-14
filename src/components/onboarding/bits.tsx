@@ -111,3 +111,20 @@ export function BackButton({ onClick }: { onClick: () => void }) {
     </motion.button>
   );
 }
+
+/** Top row of a step: back button on the left, three progress dots in the middle. */
+export function StepHeader({ onBack, at }: { onBack?: () => void; at?: 0 | 1 | 2 }) {
+  return (
+    <div className="flex h-11 items-center pb-4">
+      {onBack ? <BackButton onClick={onBack} /> : null}
+      {at !== undefined ? (
+        <div className="mx-auto flex gap-1.5" aria-hidden="true">
+          {[0, 1, 2].map((dot) => (
+            <motion.span key={dot} animate={{ width: dot === at ? 26 : 8 }} className={`h-2 rounded-full ${dot <= at ? "bg-night" : "bg-night/15"}`} />
+          ))}
+        </div>
+      ) : null}
+      {onBack && at !== undefined ? <span className="w-11" /> : null}
+    </div>
+  );
+}
