@@ -12,7 +12,7 @@ import { clay, clayDark, KidStage } from "@/components/kid/stage";
 import { type Kid, useFamily } from "@/lib/store/family";
 
 export const chunky = `rounded-[28px] font-semibold ${clay}`;
-const dark = `rounded-[28px] bg-night font-semibold text-white ${clayDark}`;
+export const chunkyDark = `rounded-[28px] bg-night font-semibold text-white ${clayDark}`;
 
 /** The sky, the active child, and a way back to wherever the game was opened from. */
 export function GamePage({ children }: { children: (kid: Kid, exit: () => void) => ReactNode }) {
@@ -66,7 +66,7 @@ export function GameIntro({ kid, title, line, onGo, onExit }: { kid: Kid; title:
         <h1 className="text-[40px] font-semibold leading-none">{title}</h1>
         <p className="max-w-[270px] text-xl font-medium leading-snug text-night/70">{line}</p>
       </div>
-      <motion.button type="button" whileTap={{ scale: 0.95 }} onClick={onGo} className={`h-[72px] text-2xl ${dark}`}>
+      <motion.button type="button" whileTap={{ scale: 0.95 }} onClick={onGo} className={`h-[72px] text-2xl ${chunkyDark}`}>
         Go!
       </motion.button>
     </div>
@@ -92,7 +92,7 @@ export function GameDone({ kid, stars, total, line, onAgain, onExit }: { kid: Ki
         <p className="text-lg font-medium text-night/70">{line}</p>
       </div>
       <div className="grid gap-3">
-        <motion.button type="button" whileTap={{ scale: 0.95 }} onClick={onAgain} className={`h-[68px] text-xl ${dark}`}>
+        <motion.button type="button" whileTap={{ scale: 0.95 }} onClick={onAgain} className={`h-[68px] text-xl ${chunkyDark}`}>
           Play again
         </motion.button>
         <motion.button type="button" whileTap={{ scale: 0.95 }} onClick={onExit} className={`h-[60px] bg-white text-lg ${chunky}`}>
