@@ -1,4 +1,4 @@
--- ReadCheck schema. Run once in the Supabase SQL editor (see docs/SETUP.md).
+-- ReadBuddy schema. Run once in the Supabase SQL editor (see docs/SETUP.md).
 -- Every table is private to the signed-in parent through row-level security.
 
 -- One row per parent account, created on sign-up.

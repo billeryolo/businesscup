@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { CheckFlow } from "@/components/check/check-flow";
 
 export const metadata: Metadata = {
-  title: "Free 1-minute reading check — ReadCheck",
+  title: "Free 1-minute reading check — ReadBuddy",
   alternates: { canonical: "/check" },
 };
 

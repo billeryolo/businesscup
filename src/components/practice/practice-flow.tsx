@@ -254,7 +254,7 @@ export function PracticeFlow() {
               {!consentGiven ? (
                 <span className="mt-1 block text-sm text-ink-soft">
                   By turning this on, you, the parent or guardian, agree that the reading is sent to this browser&apos;s speech service to turn it into words.
-                  ReadCheck never stores the audio.{" "}
+                  ReadBuddy never stores the audio.{" "}
                   <Link href="/privacy" target="_blank" className="font-semibold underline underline-offset-4">
                     Privacy policy
                   </Link>

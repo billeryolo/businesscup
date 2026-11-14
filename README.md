@@ -1,4 +1,4 @@
-# ReadCheck
+# ReadBuddy
 
 A one-minute reading check for parents of kids in grades 1–4. The child reads a grade-level
 passage aloud; the app counts words correct per minute (WCPM), compares it with the

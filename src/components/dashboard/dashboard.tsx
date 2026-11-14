@@ -110,7 +110,7 @@ export function Dashboard({ email, season, trialPlan, childList }: Props) {
 
       {trialPlan ? (
         <p className="rounded-xl bg-sun-soft px-4 py-3">
-          You asked for the {trialPlan} plan. ReadCheck is in beta, so everything is free for now and nothing has been charged.
+          You asked for the {trialPlan} plan. ReadBuddy is in beta, so everything is free for now and nothing has been charged.
         </p>
       ) : null}
 

@@ -4,7 +4,7 @@ import { PracticeFlow } from "@/components/practice/practice-flow";
 import { Logo } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Reading practice: big words and syllables — ReadCheck",
+  title: "Reading practice: big words and syllables — ReadBuddy",
   description: "Practice reading one big word at a time, or with words split into syllables. Free, no sign-up.",
   alternates: { canonical: "/practice" },
 };

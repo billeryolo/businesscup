@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LinkButton, Logo } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Page not found — ReadCheck", robots: { index: false } };
+export const metadata: Metadata = { title: "Page not found — ReadBuddy", robots: { index: false } };
 
 export default function NotFound() {
   return (

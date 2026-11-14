@@ -4,7 +4,7 @@ export const siteUrl = new URL(
     (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000"),
 );
 
-export const siteName = "ReadCheck";
-export const siteTitle = "ReadCheck — a 1-minute reading check for kids";
+export const siteName = "ReadBuddy";
+export const siteTitle = "ReadBuddy — a 1-minute reading check for kids";
 export const siteDescription =
-  "Your child reads aloud for one minute. ReadCheck compares the result with national reading norms, shows the mistake patterns, and gives you a 10-minute daily plan.";
+  "Your child reads aloud for one minute. ReadBuddy compares the result with national reading norms, shows the mistake patterns, and gives you a 10-minute daily plan.";

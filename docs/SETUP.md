@@ -5,7 +5,7 @@ progress dashboard need Supabase.
 
 ## 1. Create the Supabase project
 
-1. <https://supabase.com/dashboard> → **New project** (free tier). Name it `readcheck`.
+1. <https://supabase.com/dashboard> → **New project** (free tier). Name it `readbuddy`.
    Region: **East US (North Virginia)**, next to Vercel's default region, so every query is short.
 2. **Project Settings → API Keys**: copy the **Project URL** and the **publishable key**
    (`sb_publishable_…`). Both are safe in the browser. Never use the secret key in this app.
@@ -19,16 +19,16 @@ security (each parent sees only their own rows), and adds `delete_my_account()`.
 
 ## 3. Deploy on Vercel
 
-1. <https://vercel.com/new> → import **billeryolo/zimran**.
-2. **Root Directory**: `reading-check` (Framework: Next.js is detected).
+1. <https://vercel.com/new> → import **billeryolo/businesscup**.
+2. **Root Directory**: leave it as the repo root (Framework: Next.js is detected).
 3. **Environment Variables** (Production and Preview):
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — from step 1
    - `ANTHROPIC_API_KEY` — optional, mark it Sensitive; without it the rules write the summary
    - `CONTACT_EMAIL` — optional, shown on the privacy and terms pages
-4. **Deploy.** The production branch is the repo's default branch
-   (`claude/sharp-ramanujan-4x0rdu`), so every push to it redeploys.
+4. **Deploy.** The production branch is `main`, so every merge to it redeploys, and every PR
+   gets a preview link.
 5. On the free plan, Vercel only builds commits whose author email is linked to your GitHub
-   account. Commits in this repo use the same email as Studypath.
+   account.
 
 `NEXT_PUBLIC_…` values are built into the page, so after changing them, redeploy.
 
@@ -36,7 +36,7 @@ security (each parent sees only their own rows), and adds `delete_my_account()`.
 
 Supabase → **Authentication → URL Configuration**:
 
-- **Site URL**: your production URL, e.g. `https://readcheck.vercel.app`
+- **Site URL**: your production URL, e.g. `https://readbuddy.vercel.app`
 - **Redirect URLs**: add
   - `https://<your-production-domain>/auth/callback`
   - `http://localhost:3000/auth/callback` (local development)
@@ -49,7 +49,7 @@ per hour, which is fine for testing. Before inviting real parents:
 
 - **Authentication → Emails → SMTP Settings**: connect a sender such as Resend.
 - **Authentication → Emails → Templates → Magic Link**: change the subject to
-  "Your ReadCheck sign-in link" so parents recognize it.
+  "Your ReadBuddy sign-in link" so parents recognize it.
 
 ## 6. Check it end to end
 
