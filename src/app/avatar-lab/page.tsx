@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { AnimalAvatar, AvatarBubble, type Mood } from "@/components/avatars/animal";
 import { AnimalBuddy } from "@/components/avatars/buddy";
+import { SoftLion } from "@/components/avatars/soft";
 import { ANIMALS } from "@/lib/store/family";
 
 const MOODS: Mood[] = ["idle", "happy", "cheer", "oops", "wave"];
@@ -16,6 +17,22 @@ export default function AvatarLabPage() {
     <main className="min-h-dvh bg-mist p-5 font-app text-night">
       <h1 className="text-2xl font-semibold">Avatar lab</h1>
       <p className="mt-1 text-sm text-night-soft">Every animal in every mood. Tap or move the pointer near a face: the eyes follow.</p>
+
+      <h2 className="mt-6 text-lg font-semibold">Soft 3D trial: lion</h2>
+      <p className="text-sm text-night-soft">Current on the left, new on the right.</p>
+      <div className="mt-3 flex items-end gap-6 rounded-[28px] bg-white p-5">
+        <AnimalBuddy animal="lion" size={150} mood={live} />
+        <SoftLion size={180} mood={live} />
+      </div>
+      <div className="mt-3 flex flex-wrap items-end gap-3 rounded-[28px] bg-sky p-5">
+        {MOODS.map((mood) => (
+          <div key={mood} className="grid justify-items-center gap-1">
+            <SoftLion size={92} mood={mood} />
+            <span className="text-xs font-semibold">{mood}</span>
+          </div>
+        ))}
+        <SoftLion size={48} />
+      </div>
 
       <h2 className="mt-6 text-lg font-semibold">Heads</h2>
       <div className="mt-2 grid gap-3">

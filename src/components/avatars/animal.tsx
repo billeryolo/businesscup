@@ -94,7 +94,7 @@ function Ears({ look }: { look: Look }) {
  * Blinks every second or two, at slightly random moments so a row of avatars doesn't blink in
  * unison. About one blink in four is a quick double.
  */
-function useBlink(enabled: boolean) {
+export function useBlink(enabled: boolean) {
   const [closed, setClosed] = useState(false);
   useEffect(() => {
     if (!enabled) return;
@@ -157,7 +157,7 @@ function watchPointer(watch: Watcher) {
  * Eyes glance toward a nearby tap or pointer, then ease back. It moves motion values, not React
  * state, so nothing re-renders. Takes a ref to the eyes and returns the offsets, in SVG units.
  */
-function useLook(ref: RefObject<SVGGElement | null>, enabled: boolean) {
+export function useLook(ref: RefObject<SVGGElement | null>, enabled: boolean) {
   const targetX = useMotionValue(0);
   const targetY = useMotionValue(0);
   const x = useSpring(targetX, { stiffness: 220, damping: 20 });
