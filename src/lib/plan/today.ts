@@ -17,7 +17,7 @@ export const SECTIONS: Section[] = ["Letters", "Reading", "Numbers and math", "S
 
 export const GAMES: Record<Activity["id"], Omit<Activity, "minutes">> = {
   "hear-a-letter": { id: "hear-a-letter", title: "Hear a letter", icon: "letters", tone: "bg-mint", section: "Letters", ready: true, blurb: "Hears a letter and a word that starts with it, then taps the letter." },
-  "big-word": { id: "big-word", title: "Big word", icon: "book", tone: "bg-lilac", section: "Reading", ready: false, blurb: "Breaks a long word into parts, then reads it whole." },
+  "big-word": { id: "big-word", title: "Big word", icon: "book", tone: "bg-lilac", section: "Reading", ready: true, blurb: "Builds a long word from its parts, then reads it whole." },
   "speed-math": { id: "speed-math", title: "Speed math", icon: "bolt", tone: "bg-peach", section: "Numbers and math", ready: true, blurb: "Ten quick facts with three answers to tap." },
   story: { id: "story", title: "Story about…", icon: "wand", tone: "bg-candy", section: "Stories", ready: false, blurb: "A short story made about whatever your child loves." },
 };
