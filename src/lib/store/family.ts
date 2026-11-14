@@ -4,6 +4,7 @@
 // localStorage, read through useSyncExternalStore so every screen updates together.
 
 import { useSyncExternalStore } from "react";
+import { createLocalStore } from "./local";
 
 export type AnimalId = "lion" | "koala" | "monkey" | "bear" | "bunny" | "fox";
 export const ANIMALS: AnimalId[] = ["lion", "koala", "monkey", "bear", "bunny", "fox"];
@@ -45,48 +46,8 @@ export const gradeLabel = (grade: Grade) => (grade === -1 ? "Pre-K" : grade === 
 export const archetypeFor = (grade: Grade): Archetype => (grade === -1 ? "explorer" : grade <= 1 ? "builder" : "reader");
 export const minutesFor = (grade: Grade) => (grade === -1 ? 5 : grade <= 1 ? 10 : 15);
 
-// --- storage -------------------------------------------------------------------------------
-
-const listeners = new Set<() => void>();
-let cachedRaw: string | null | undefined;
-let cached: Family = EMPTY;
-
-function read(): Family {
-  let raw: string | null = null;
-  try {
-    raw = window.localStorage.getItem(KEY);
-  } catch {
-    // Private mode or blocked storage: the app still works for this visit.
-  }
-  if (raw === cachedRaw) return cached;
-  cachedRaw = raw;
-  try {
-    cached = raw ? { ...EMPTY, ...(JSON.parse(raw) as Family) } : EMPTY;
-  } catch {
-    cached = EMPTY;
-  }
-  return cached;
-}
-
-function write(next: Family) {
-  cached = next;
-  cachedRaw = JSON.stringify(next);
-  try {
-    window.localStorage.setItem(KEY, cachedRaw);
-  } catch {
-    // Keep the in-memory copy.
-  }
-  listeners.forEach((l) => l());
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  window.addEventListener("storage", listener);
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", listener);
-  };
-}
+const store = createLocalStore<Family>(KEY, EMPTY, (parsed) => ({ ...EMPTY, ...(parsed as Family) }));
+const { read, write } = store;
 
 // --- actions -------------------------------------------------------------------------------
 
@@ -110,7 +71,7 @@ export const familyActions = {
   setActive(id: string) {
     write({ ...read(), activeId: id });
   },
-  useDemoFamily() {
+  loadDemoFamily() {
     write(demoFamily);
   },
   clearAll() {
@@ -123,7 +84,7 @@ export const familyActions = {
  * instead of flashing the empty state.
  */
 export function useFamily() {
-  const family = useSyncExternalStore(subscribe, read, () => null);
+  const family = useSyncExternalStore(store.subscribe, store.read, () => null);
   const kids = family?.kids ?? [];
   const active = kids.find((k) => k.id === family?.activeId) ?? kids[0] ?? null;
   return { ready: family !== null, onboarded: family?.onboarded ?? false, kids, active };
