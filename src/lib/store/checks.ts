@@ -31,6 +31,10 @@ export const checkActions = {
     store.write([saved, ...store.read()]);
     return saved;
   },
+  /** Replaces every saved check, e.g. with the demo family's history. */
+  replaceAll(records: CheckRecord[]) {
+    store.write(records);
+  },
   removeForKid(kidId: string) {
     store.write(store.read().filter((c) => c.kidId !== kidId));
   },

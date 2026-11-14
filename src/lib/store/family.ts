@@ -4,6 +4,8 @@
 // localStorage, read through useSyncExternalStore so every screen updates together.
 
 import { useSyncExternalStore } from "react";
+import { checkActions } from "./checks";
+import { demoChecks } from "./demo-checks";
 import { createLocalStore } from "./local";
 
 export type AnimalId = "lion" | "koala" | "monkey" | "bear" | "bunny" | "fox";
@@ -73,6 +75,8 @@ export const familyActions = {
   },
   loadDemoFamily() {
     write(demoFamily);
+    // A few weeks of past checks, so Home and Progress show growth straight away.
+    checkActions.replaceAll(demoChecks(new Date(), { mia: "demo-mia", leo: "demo-leo" }));
   },
   clearAll() {
     write(EMPTY);
