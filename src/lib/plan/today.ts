@@ -5,13 +5,21 @@ import type { IconName } from "@/components/icons";
 import type { CheckRecord } from "@/lib/store/checks";
 import { archetypeFor, type Kid, minutesFor } from "@/lib/store/family";
 
-export type Activity = { id: "hear-a-letter" | "big-word" | "speed-math" | "story"; title: string; icon: IconName; tone: string; minutes: number };
+export type Activity = { id: "hear-a-letter" | "big-word" | "speed-math" | "story"; title: string; icon: IconName; tone: string; minutes: number;
+  /** What the game trains, in a parent's words. */
+  blurb: string;
+  section: Section;
+  /** False until the game itself is built. */
+  ready: boolean;
+};
+export type Section = "Letters" | "Reading" | "Numbers and math" | "Stories";
+export const SECTIONS: Section[] = ["Letters", "Reading", "Numbers and math", "Stories"];
 
-const GAMES: Record<Activity["id"], Omit<Activity, "minutes">> = {
-  "hear-a-letter": { id: "hear-a-letter", title: "Hear a letter", icon: "letters", tone: "bg-mint" },
-  "big-word": { id: "big-word", title: "Big word", icon: "book", tone: "bg-lilac" },
-  "speed-math": { id: "speed-math", title: "Speed math", icon: "bolt", tone: "bg-peach" },
-  story: { id: "story", title: "Story about…", icon: "wand", tone: "bg-candy" },
+export const GAMES: Record<Activity["id"], Omit<Activity, "minutes">> = {
+  "hear-a-letter": { id: "hear-a-letter", title: "Hear a letter", icon: "letters", tone: "bg-mint", section: "Letters", ready: false, blurb: "Hears a letter sound and taps the letter that makes it." },
+  "big-word": { id: "big-word", title: "Big word", icon: "book", tone: "bg-lilac", section: "Reading", ready: false, blurb: "Breaks a long word into parts, then reads it whole." },
+  "speed-math": { id: "speed-math", title: "Speed math", icon: "bolt", tone: "bg-peach", section: "Numbers and math", ready: true, blurb: "Ten quick facts with three answers to tap." },
+  story: { id: "story", title: "Story about…", icon: "wand", tone: "bg-candy", section: "Stories", ready: false, blurb: "A short story made about whatever your child loves." },
 };
 
 /** Three short games that add up to the day's minutes: letters first for the youngest, reading for the oldest. */

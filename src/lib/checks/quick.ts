@@ -48,7 +48,7 @@ function mathItem(grade: Grade, rand: Rand): QuickItem {
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-function shuffled<T>(list: T[], rand: Rand): T[] {
+export function shuffled<T>(list: T[], rand: Rand): T[] {
   const out = [...list];
   for (let i = out.length - 1; i > 0; i--) {
     const j = int(rand, 0, i);

@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AnimalBuddy } from "@/components/avatars/buddy";
 import { Icon } from "@/components/icons";
+import { KidStage } from "@/components/kid/stage";
 import { todayFor } from "@/lib/plan/today";
 import { useFamily } from "@/lib/store/family";
 
@@ -86,12 +87,7 @@ export default function PlayPage() {
   const bubble = say ?? `Hi, ${kid.name}! Ready to play?`;
 
   return (
-    <div className="min-h-dvh flex-1 bg-sky-deep font-kid text-night">
-      <div className="relative mx-auto flex min-h-dvh w-full max-w-[430px] flex-col overflow-hidden bg-gradient-to-b from-sky to-sky-soft px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-[max(16px,env(safe-area-inset-top))]">
-        <div className="cloud-drift absolute left-4 top-24 h-10 w-28 rounded-full bg-white/80" aria-hidden="true" />
-        <div className="cloud-drift absolute right-2 top-44 h-8 w-24 rounded-full bg-white/70 [animation-delay:-9s]" aria-hidden="true" />
-        <div className="cloud-drift absolute left-24 top-[300px] h-7 w-20 rounded-full bg-white/60 [animation-delay:-17s]" aria-hidden="true" />
-
+    <KidStage>
         <div className="relative flex items-center justify-between">
           <ParentGate onOpen={() => router.push("/home")} />
           <motion.div key={kid.stars} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-2 text-lg font-semibold">
@@ -140,7 +136,7 @@ export default function PlayPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 220, damping: 16, delay: 0.25 + i * 0.1 }}
               whileTap={{ scale: 0.9, rotate: -3 }}
-              onClick={() => react(`${g.title} is coming soon!`)}
+              onClick={() => (g.ready ? router.push(`/play/${g.id}`) : react(`${g.title} is coming soon!`))}
               className={`grid aspect-[4/5] content-center justify-items-center gap-2 rounded-[28px] p-2 shadow-[0_8px_0_rgba(27,20,51,0.12)] ${g.tone}`}
             >
               <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: i * 0.35 }}>
@@ -156,7 +152,6 @@ export default function PlayPage() {
             <span className="assistant-orb h-9 w-9 rounded-full" aria-hidden="true" /> Talk to Buddy
           </Link>
         </motion.div>
-      </div>
-    </div>
+    </KidStage>
   );
 }
