@@ -19,7 +19,7 @@ export function ReminderButton({ childName, childId, className = "" }: Props) {
     const ics = weeklyReminderIcs({ childName, url, start: nextReminderStart(now), now, uid: crypto.randomUUID() });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
-    link.download = "readcheck-weekly-reminder.ics";
+    link.download = "readbuddy-weekly-reminder.ics";
     document.body.append(link);
     link.click();
     link.remove();

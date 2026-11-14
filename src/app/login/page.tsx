@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { Card, Logo } from "@/components/ui";
 import { LoginPanel } from "./login-panel";
 
-export const metadata: Metadata = { title: "Sign in — ReadCheck", robots: { index: false, follow: true } };
+export const metadata: Metadata = { title: "Sign in — ReadBuddy", robots: { index: false, follow: true } };
 
 export default function LoginPage() {
   return (

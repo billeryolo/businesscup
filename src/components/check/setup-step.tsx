@@ -50,7 +50,7 @@ export function SetupStep({ childName, onStart, onBack }: Props) {
             <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-brand" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
             <span>
               I&apos;m {name === "your child" ? "the child" : name}&apos;s parent or guardian. I agree that the reading is sent to this browser&apos;s speech
-              service (for example Google in Chrome, Apple in Safari) to turn it into words for scoring. ReadCheck never stores the audio.{" "}
+              service (for example Google in Chrome, Apple in Safari) to turn it into words for scoring. ReadBuddy never stores the audio.{" "}
               <Link href="/privacy" className="font-semibold underline underline-offset-4" target="_blank">
                 Privacy policy
               </Link>

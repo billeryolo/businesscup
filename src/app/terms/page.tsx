@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import { contactEmail, LegalPage } from "@/components/legal-page";
 
-export const metadata: Metadata = { title: "Terms — ReadCheck", alternates: { canonical: "/terms" } };
+export const metadata: Metadata = { title: "Terms — ReadBuddy", alternates: { canonical: "/terms" } };
 
 export default function TermsPage() {
   return (
     <LegalPage title="Terms of use" updated="November 4, 2026">
-      <p>By using ReadCheck you agree to these terms. ReadCheck is in beta and is free to use while it is in beta.</p>
+      <p>By using ReadBuddy you agree to these terms. ReadBuddy is in beta and is free to use while it is in beta.</p>
 
-      <h2>What ReadCheck is, and isn&apos;t</h2>
+      <h2>What ReadBuddy is, and isn&apos;t</h2>
       <p>
-        ReadCheck is a reading fluency screening for parents. It compares a one-minute reading with published grade-level norms and suggests practice. It is not
+        ReadBuddy is a reading fluency screening for parents. It compares a one-minute reading with published grade-level norms and suggests practice. It is not
         a diagnosis of dyslexia or any other condition, and it doesn&apos;t replace an evaluation by a teacher, reading specialist or doctor. Speech recognition
         can make mistakes, so please review the scoring before relying on a result.
       </p>

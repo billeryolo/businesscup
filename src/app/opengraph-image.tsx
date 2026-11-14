@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "ReadCheck: is your child reading on track? A one-minute reading check for grades 1 to 4.";
+export const alt = "ReadBuddy: is your child reading on track? A one-minute reading check for grades 1 to 4.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -19,7 +19,7 @@ export default function OpengraphImage() {
           <div style={{ display: "flex", width: 64, height: 64, borderRadius: 14, background: "#2f6f62", color: "#fff", fontSize: 30, fontWeight: 700, alignItems: "center", justifyContent: "center" }}>
             Rc
           </div>
-          <div style={{ display: "flex", fontSize: 36, fontWeight: 700 }}>ReadCheck</div>
+          <div style={{ display: "flex", fontSize: 36, fontWeight: 700 }}>ReadBuddy</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

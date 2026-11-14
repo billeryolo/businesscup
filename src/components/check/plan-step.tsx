@@ -28,7 +28,7 @@ export function PlanStep({ childName, childId, grade, passageId, summary, intere
     <div className="flex flex-col gap-6">
       {interestPlan ? (
         <p role="status" className="rounded-xl bg-sun-soft px-4 py-3">
-          ReadCheck is in beta, so the plan is free for now. We&apos;ve noted that you&apos;d like the {interestPlan} plan; nothing has been charged.
+          ReadBuddy is in beta, so the plan is free for now. We&apos;ve noted that you&apos;d like the {interestPlan} plan; nothing has been charged.
         </p>
       ) : null}
 

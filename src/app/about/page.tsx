@@ -105,7 +105,7 @@ export default function Home() {
             <div>
               <h2 className="text-3xl font-bold tracking-tight">A measured result, not a guess</h2>
               <p className="mt-4 leading-relaxed text-ink-soft">
-                Schools check reading fluency a few times a year and usually send home a number without a plan. ReadCheck uses the same method: an unpracticed passage, one
+                Schools check reading fluency a few times a year and usually send home a number without a plan. ReadBuddy uses the same method: an unpracticed passage, one
                 minute, words correct per minute, compared with the Hasbrouck &amp; Tindal 2017 national norms, built from almost 7 million scores. Children scoring 10 or more
                 words below the typical score for their grade usually benefit from daily fluency practice.
               </p>
@@ -169,7 +169,7 @@ export default function Home() {
       </main>
 
       <footer className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-4 py-8 text-sm text-ink-soft sm:flex-row sm:justify-between">
-        <p>ReadCheck is a reading fluency screening for parents. It is not a diagnosis and does not replace an evaluation by a specialist.</p>
+        <p>ReadBuddy is a reading fluency screening for parents. It is not a diagnosis and does not replace an evaluation by a specialist.</p>
         <nav className="flex shrink-0 gap-6">
           <Link href="/privacy" className="inline-flex min-h-11 items-center underline-offset-4 hover:text-ink hover:underline">
             Privacy

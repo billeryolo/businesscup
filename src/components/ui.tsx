@@ -30,7 +30,7 @@ export function Logo() {
       <span aria-hidden className="grid h-8 w-8 place-items-center rounded-lg bg-brand font-read text-sm text-white">
         Rc
       </span>
-      ReadCheck
+      ReadBuddy
     </Link>
   );
 }

@@ -9,7 +9,7 @@ import type { ParentSummary } from "@/lib/reading/summary";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "My children — ReadCheck", robots: { index: false } };
+export const metadata: Metadata = { title: "My children — ReadBuddy", robots: { index: false } };
 
 export default function DashboardPage() {
   return (

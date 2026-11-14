@@ -56,11 +56,11 @@ export function weeklyReminderIcs({ childName, url, start, now, weeks = 4, uid }
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//ReadCheck//Weekly reading check//EN",
+    "PRODID:-//ReadBuddy//Weekly reading check//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
-    `UID:${uid}@readcheck`,
+    `UID:${uid}@readbuddy`,
     `DTSTAMP:${utcStamp(now)}`,
     `DTSTART:${localStamp(start)}`,
     `DTEND:${localStamp(end)}`,
