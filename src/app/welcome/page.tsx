@@ -35,7 +35,7 @@ function Hello({ onStart, onDemo }: { onStart: () => void; onDemo: () => void })
               animate={{ scale: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 14, delay: 0.15 + i * 0.09 }}
             >
-              <AvatarBubble animal={animal} size={row === 0 ? 84 : 76} mood={i === 1 ? "cheer" : i % 2 ? "idle" : "happy"} />
+              <AvatarBubble animal={animal} size={row === 0 ? 84 : 76} mood={i === 1 ? "cheer" : i === 2 ? "wave" : i % 2 ? "idle" : "happy"} />
             </motion.div>
           );
         })}
