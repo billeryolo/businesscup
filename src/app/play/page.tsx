@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { AnimalAvatar } from "@/components/avatars/animal";
+import { AnimalBuddy } from "@/components/avatars/buddy";
 import { Icon } from "@/components/icons";
 import { todayFor } from "@/lib/plan/today";
 import { useFamily } from "@/lib/store/family";
@@ -126,9 +126,8 @@ export default function PlayPage() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 160, damping: 12 }}
           >
-            <AnimalAvatar animal={kid.avatar} size={190} mood={cheer ? "cheer" : "happy"} />
+            <AnimalBuddy animal={kid.avatar} size={200} mood={cheer ? "cheer" : "happy"} />
           </motion.button>
-          <div className="-mt-3 h-4 w-28 rounded-[50%] bg-night/10" aria-hidden="true" />
         </div>
 
         <p className="relative mt-6 text-center text-lg font-semibold text-night/70">Today’s games</p>
