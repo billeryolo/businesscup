@@ -41,6 +41,12 @@ export function SoftLion({ size = 160, mood = "idle", follow = true, className }
           <stop offset="0.5" stopColor="#FFDA8C" />
           <stop offset="1" stopColor="#EEB15C" />
         </radialGradient>
+        {/* One gradient across the body, arms and feet, in drawing units, so they shade as one piece. */}
+        <radialGradient id={`${id}-body`} gradientUnits="userSpaceOnUse" cx="50" cy="84" r="46">
+          <stop offset="0" stopColor="#FFF1C4" />
+          <stop offset="0.5" stopColor="#FFDA8C" />
+          <stop offset="1" stopColor="#EEB15C" />
+        </radialGradient>
         <radialGradient id={`${id}-mane`} cx="0.36" cy="0.3" r="0.8">
           <stop offset="0" stopColor="#FFC79A" />
           <stop offset="0.55" stopColor="#F7A56C" />
@@ -71,19 +77,21 @@ export function SoftLion({ size = 160, mood = "idle", follow = true, className }
         <circle cx="100" cy="88" r="7" fill={u("mane")} />
 
         {/* feet, body, belly */}
-        <ellipse cx="46" cy="119" rx="10" ry="6" fill={u("fur")} />
-        <ellipse cx="74" cy="119" rx="10" ry="6" fill={u("fur")} />
-        <ellipse cx="60" cy="98" rx="27" ry="24" fill={u("fur")} />
+        <ellipse cx="46" cy="119" rx="10" ry="6" fill={u("body")} />
+        <ellipse cx="74" cy="119" rx="10" ry="6" fill={u("body")} />
+        <ellipse cx="60" cy="98" rx="27" ry="24" fill={u("body")} />
         <ellipse cx="60" cy="102" rx="15" ry="14" fill={u("cream")} />
         {/* the head's shadow on the body */}
         <ellipse cx="60" cy="82" rx="23" ry="7" fill="#B9742F" opacity="0.3" filter={u("blur3")} />
 
-        {/* arms */}
-        <motion.g style={pivot(37, 90)} animate={leftArm}>
-          <ellipse cx="35" cy="98" rx="6.5" ry="10.5" transform="rotate(14 35 98)" fill={u("fur")} />
+        {/* arms: they grow out of the shoulders and share the body's shading, so there is no seam */}
+        <motion.g style={pivot(41, 88)} animate={leftArm}>
+          <path d="M42.500 89.500 Q36 95 35 104" fill="none" stroke="#B9742F" strokeWidth="11" strokeLinecap="round" opacity="0.28" filter={u("blur1")} />
+          <path d="M41 88 Q34 94 33 103" fill="none" stroke={u("body")} strokeWidth="12" strokeLinecap="round" />
         </motion.g>
-        <motion.g style={pivot(83, 90)} animate={rightArm}>
-          <ellipse cx="85" cy="98" rx="6.5" ry="10.5" transform="rotate(-14 85 98)" fill={u("fur")} />
+        <motion.g style={pivot(79, 88)} animate={rightArm}>
+          <path d="M80.500 89.500 Q87.500 95 88.500 104" fill="none" stroke="#B9742F" strokeWidth="11" strokeLinecap="round" opacity="0.28" filter={u("blur1")} />
+          <path d="M79 88 Q86 94 87 103" fill="none" stroke={u("body")} strokeWidth="12" strokeLinecap="round" />
         </motion.g>
 
         <motion.g style={pivot(60, 80)} animate={head}>
