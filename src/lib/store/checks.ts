@@ -48,3 +48,10 @@ export function useChecks(kidId: string | undefined) {
   const all = useSyncExternalStore(store.subscribe, store.read, () => null);
   return useMemo(() => (all ?? []).filter((c) => c.kidId === kidId), [all, kidId]);
 }
+
+const NO_CHECKS: CheckRecord[] = [];
+
+/** Every child's checks, newest first. */
+export function useAllChecks() {
+  return useSyncExternalStore(store.subscribe, store.read, () => null) ?? NO_CHECKS;
+}

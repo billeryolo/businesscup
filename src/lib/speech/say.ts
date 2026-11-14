@@ -1,6 +1,9 @@
-/** Says it out loud with the phone's own voice. False when the phone has none. */
+import { readSettings } from "@/lib/store/settings";
+
+/** Says it out loud with the phone's own voice. False when the phone has none or the voice is off. */
 export function say(text: string): boolean {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
+  if (!readSettings().voice) return false;
   window.speechSynthesis.cancel();
   const voice = new SpeechSynthesisUtterance(text);
   voice.lang = "en-US";
