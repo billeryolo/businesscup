@@ -3,6 +3,7 @@
 // The 1-minute reading check. Either the app listens and follows along, or the parent listens and
 // taps the words read wrong. Afterwards the parent can fix any word before seeing the result.
 
+import { SlidingPill } from "@/components/app/sliding-pill";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PassageView } from "@/components/check/passage-view";
@@ -46,6 +47,7 @@ const NOTHING_HEARD: SpokenWord[] = [];
 type Done = { spoken: SpokenWord[]; seconds: number; at: Date };
 
 function Run({ passage, title, kidName, grade, mode, supported, onMode, onRestart, onResult }: Props & { mode: Mode; supported: boolean; onMode: (m: Mode) => void; onRestart: () => void }) {
+  const shownModes = MODES.filter((m) => m.mode !== "live" || supported);
   const speech = useSpeechRecognition();
   const demo = useDemoReader(passage, DEMO_PROFILES.guesser);
   const source = mode === "demo" ? demo : speech;
@@ -178,8 +180,9 @@ function Run({ passage, title, kidName, grade, mode, supported, onMode, onRestar
 
       {phase === "ready" ? (
         <>
-          <div className="flex gap-1 rounded-full bg-white p-1" role="radiogroup" aria-label="How to score">
-            {MODES.filter((m) => m.mode !== "live" || supported).map((m) => (
+          <div className="relative flex rounded-full bg-white p-1" role="radiogroup" aria-label="How to score">
+            <SlidingPill index={shownModes.findIndex((m) => m.mode === mode)} count={shownModes.length} />
+            {shownModes.map((m) => (
               <button
                 key={m.mode}
                 type="button"
@@ -188,7 +191,6 @@ function Run({ passage, title, kidName, grade, mode, supported, onMode, onRestar
                 onClick={() => onMode(m.mode)}
                 className={`relative min-h-11 flex-1 rounded-full px-2 text-[13px] font-semibold ${m.mode === mode ? "text-white" : "text-night-soft"}`}
               >
-                {m.mode === mode ? <motion.span layoutId="reading-mode" className="absolute inset-0 rounded-full bg-night" transition={{ type: "spring", stiffness: 420, damping: 34 }} /> : null}
                 <span className="relative">{m.label}</span>
               </button>
             ))}
