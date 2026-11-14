@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@/components/icons";
 import { useState } from "react";
 import { Button } from "@/components/ui";
 
@@ -31,8 +32,8 @@ export function PaywallStep({ childName, onStart, onBack }: Props) {
           "Up to 3 children",
         ].map((f) => (
           <li key={f} className="flex items-start gap-3">
-            <span aria-hidden className="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-good text-xs text-white">
-              ✓
+            <span aria-hidden className="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-good text-white">
+              <Icon name="check" size={13} />
             </span>
             {f}
           </li>

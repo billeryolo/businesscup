@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AnimalAvatar } from "@/components/avatars/animal";
+import { Icon } from "@/components/icons";
 import { todayFor } from "@/lib/plan/today";
 import { useFamily } from "@/lib/store/family";
 
@@ -94,7 +95,7 @@ export default function PlayPage() {
         <div className="relative flex items-center justify-between">
           <ParentGate onOpen={() => router.push("/home")} />
           <motion.div key={kid.stars} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-2 text-lg font-semibold">
-            <span aria-hidden="true">⭐</span> {kid.stars}
+            <Icon name="star" size={24} /> {kid.stars}
           </motion.div>
         </div>
 
@@ -143,8 +144,8 @@ export default function PlayPage() {
               onClick={() => react(`${g.title} is coming soon!`)}
               className={`grid aspect-[4/5] content-center justify-items-center gap-2 rounded-[28px] p-2 shadow-[0_8px_0_rgba(27,20,51,0.12)] ${g.tone}`}
             >
-              <motion.span className="text-[40px] leading-none" aria-hidden="true" animate={{ y: [0, -5, 0] }} transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: i * 0.35 }}>
-                {g.emoji}
+              <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: i * 0.35 }}>
+                <Icon name={g.icon} size={52} />
               </motion.span>
               <span className="text-center text-[15px] font-semibold leading-tight">{g.title}</span>
             </motion.button>

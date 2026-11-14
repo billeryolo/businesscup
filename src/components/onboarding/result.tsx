@@ -145,7 +145,7 @@ export function ResultScreen({ kid, view, onRetry }: { kid: Kid; view: ResultVie
       <Card title="Note for the teacher" delay={0.5}>
         <p className="mt-3 text-[15px] leading-relaxed text-night-soft">{view.teacherNote}</p>
         <button type="button" onClick={copyNote} className="mt-3 min-h-11 rounded-full bg-lilac-soft px-5 text-sm font-semibold" aria-live="polite">
-          {copied ? "Copied ✓" : "Copy note for teacher"}
+          {copied ? "Copied" : "Copy note for teacher"}
         </button>
       </Card>
 

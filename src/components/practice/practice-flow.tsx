@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@/components/icons";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -80,9 +81,7 @@ export function PracticeFlow() {
   if (step === "reading" && finished) {
     return (
       <div className="flex flex-col items-start gap-5">
-        <p className="text-5xl" aria-hidden="true">
-          ★
-        </p>
+        <Icon name="star" size={56} />
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">The whole story, read!</h1>
         <p className="text-lg text-ink-soft">
           {story.title}: {words.length} words. Reading the same story again tomorrow is one of the best ways to build speed.

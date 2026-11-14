@@ -9,10 +9,11 @@ import { AvatarBubble } from "@/components/avatars/animal";
 import { makeQuickItems, type QuickItem, type QuickKind, quickLevel, quickScore, quickTooShort } from "@/lib/checks/quick";
 import type { QuickResult } from "@/lib/checks/result";
 import type { Kid } from "@/lib/store/family";
+import { Icon } from "@/components/icons";
 import { BigButton, TimerRing } from "./bits";
 
 const TIME_LIMIT = 60;
-const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0"];
+const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "del", "0"];
 
 export function QuickCheck({ kind, kid, onResult }: { kind: QuickKind; kid: Kid; onResult: (result: QuickResult) => void }) {
   const level = quickLevel(kind, kid.grade);
@@ -79,7 +80,7 @@ export function QuickCheck({ kind, kid, onResult }: { kind: QuickKind; kid: Kid;
 
   function press(key: string, item: QuickItem) {
     if (feedback) return;
-    if (key === "⌫") return setInput((v) => v.slice(0, -1));
+    if (key === "del") return setInput((v) => v.slice(0, -1));
     const next = input + key;
     setInput(next);
     if (next.length >= item.answer.length) record(next === item.answer, item);
@@ -155,10 +156,10 @@ export function QuickCheck({ kind, kid, onResult }: { kind: QuickKind; kid: Kid;
               type="button"
               whileTap={{ scale: 0.9 }}
               onClick={() => press(key, item)}
-              aria-label={key === "⌫" ? "Delete" : key}
-              className={`h-[60px] rounded-2xl bg-white text-[28px] font-semibold shadow-[0_4px_0_rgba(27,20,51,0.10)] ${key === "0" ? "col-span-2" : ""}`}
+              aria-label={key === "del" ? "Delete" : key}
+              className={`h-[60px] rounded-2xl bg-white text-[28px] font-semibold grid place-items-center shadow-[0_4px_0_rgba(27,20,51,0.10)] ${key === "0" ? "col-span-2" : ""}`}
             >
-              {key}
+              {key === "del" ? <Icon name="backspace" size={30} /> : key}
             </motion.button>
           ))}
         </div>
