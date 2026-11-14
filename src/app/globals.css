@@ -43,6 +43,17 @@
   --font-kid: var(--font-fredoka);
 }
 
+/* Keep room for the scrollbar on every screen. Without it a short screen (or the blank moment
+   while one loads) has no scrollbar, a long one does, and the centred column slides sideways. */
+html {
+  scrollbar-gutter: stable;
+}
+@supports not (scrollbar-gutter: stable) {
+  html {
+    overflow-y: scroll;
+  }
+}
+
 body {
   background: var(--color-paper);
   color: var(--color-ink);

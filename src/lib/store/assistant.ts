@@ -19,6 +19,9 @@ export const chatActions = {
     delete all[kidId];
     store.write(all);
   },
+  clearAll() {
+    store.write({});
+  },
 };
 
 export function useChat(kidId: string | undefined): ChatMessage[] {

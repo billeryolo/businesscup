@@ -2,6 +2,8 @@
 
 // The bottom bar: two tabs, the big assistant button, two tabs. The dark circle slides to the
 // active tab; the centre button glows and opens the assistant from anywhere.
+// The circle is one element moved sideways by column. (A shared-layout animation measured the
+// page, so it flew in from below whenever the scroll position changed between screens.)
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -51,13 +53,26 @@ const TABS = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  const activeIndex = TABS.findIndex((tab) => tab && (pathname === tab.href || pathname.startsWith(`${tab.href}/`)));
 
   return (
     <nav
       aria-label="Main"
       className="pointer-events-none fixed inset-x-0 bottom-0 z-40 mx-auto flex w-full max-w-[430px] justify-center px-4 pb-[max(14px,env(safe-area-inset-bottom))]"
     >
-      <div className="pointer-events-auto grid h-[68px] w-full grid-cols-5 items-center rounded-[34px] bg-white/90 px-2 shadow-[0_10px_30px_rgba(27,20,51,0.16)] backdrop-blur-md">
+      <div className="pointer-events-auto relative grid h-[68px] w-full grid-cols-5 items-center rounded-[34px] bg-white/90 px-2 shadow-[0_10px_30px_rgba(27,20,51,0.16)] backdrop-blur-md">
+        {activeIndex >= 0 && (
+          <div aria-hidden className="pointer-events-none absolute inset-x-2 inset-y-0">
+            <motion.div
+              initial={false}
+              animate={{ x: `${activeIndex * 100}%` }}
+              transition={{ type: "spring", stiffness: 420, damping: 32 }}
+              className="grid h-full w-1/5 place-items-center"
+            >
+              <span className="h-[52px] w-[52px] rounded-full bg-night" />
+            </motion.div>
+          </div>
+        )}
         {TABS.map((tab) => {
           if (!tab) {
             return (
@@ -77,13 +92,6 @@ export function BottomNav() {
               aria-current={active ? "page" : undefined}
               className="relative grid h-[52px] place-items-center"
             >
-              {active && (
-                <motion.span
-                  layoutId="nav-active"
-                  className="absolute h-[52px] w-[52px] rounded-full bg-night"
-                  transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                />
-              )}
               <motion.span whileTap={{ scale: 0.85 }} className={`relative ${active ? "text-white" : "text-night/55"}`}>
                 <tab.Icon className="h-6 w-6" />
               </motion.span>

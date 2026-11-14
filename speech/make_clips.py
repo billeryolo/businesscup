@@ -47,6 +47,7 @@ def game_lines() -> list[str]:
         lines.append(f"{letter}. {letter} is for {word}.")  # letterLine() in hear-a-letter.ts
         lines.append(f"Yes! {letter}!")  # the cheer in hear-a-letter.tsx
     lines += big  # each Big word, said whole
+    lines.append("Voice is on")  # the Family tab, when the voice is switched on
     return lines
 
 

@@ -6,7 +6,7 @@ import { BottomNav } from "@/components/app/bottom-nav";
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="min-h-dvh flex-1 bg-lilac font-app text-night">
-      <div className="relative mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-mist shadow-[0_0_60px_rgba(27,20,51,0.18)]">
+      <div className="relative mx-auto flex min-h-dvh w-full max-w-[430px] flex-col overflow-x-clip bg-mist shadow-[0_0_60px_rgba(27,20,51,0.18)]">
         <main className="flex-1 px-5 pb-[120px] pt-[max(20px,env(safe-area-inset-top))]">{children}</main>
         <Suspense>
           <BottomNav />

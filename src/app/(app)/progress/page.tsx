@@ -3,6 +3,7 @@
 // Progress: is the child growing? One kind of check at a time, drawn against its goal, with the
 // list of every check underneath. Everything comes from the checks saved on this phone.
 
+import { SlidingPill } from "@/components/app/sliding-pill";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useId, useState } from "react";
@@ -212,10 +213,10 @@ export default function ProgressPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 rounded-full bg-white p-1 shadow-[0_6px_20px_rgba(27,20,51,0.06)]" role="tablist" aria-label="Kind of check">
+      <div className="relative grid grid-cols-3 rounded-full bg-white p-1 shadow-[0_6px_20px_rgba(27,20,51,0.06)]" role="tablist" aria-label="Kind of check">
+        <SlidingPill index={KINDS.findIndex((k) => k.kind === kindId)} count={KINDS.length} />
         {KINDS.map((k) => (
           <button key={k.kind} type="button" role="tab" aria-selected={k.kind === kindId} onClick={() => setPicked(k.kind)} className="relative h-10 rounded-full text-sm font-semibold">
-            {k.kind === kindId && <motion.span layoutId="progress-kind" className="absolute inset-0 rounded-full bg-night" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
             <span className={`relative ${k.kind === kindId ? "text-white" : "text-night-soft"}`}>{k.label}</span>
           </button>
         ))}
