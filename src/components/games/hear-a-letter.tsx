@@ -7,21 +7,10 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { AnimalBuddy } from "@/components/avatars/buddy";
 import { letterLine, type LetterItem, makeLetterRound } from "@/lib/games/hear-a-letter";
+import { hush, say } from "@/lib/speech/say";
 import { familyActions, type Kid } from "@/lib/store/family";
 import { clay } from "@/components/kid/stage";
 import { chunky, GameDone, GameIntro, GameTop } from "./bits";
-
-/** Says it out loud with the phone's own voice. False when the phone has none. */
-function say(text: string): boolean {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
-  window.speechSynthesis.cancel();
-  const voice = new SpeechSynthesisUtterance(text);
-  voice.lang = "en-US";
-  voice.rate = 0.8;
-  voice.pitch = 1.15;
-  window.speechSynthesis.speak(voice);
-  return true;
-}
 
 export function HearALetter({ kid, onExit }: { kid: Kid; onExit: () => void }) {
   const [round, setRound] = useState<LetterItem[] | null>(null);
@@ -37,7 +26,7 @@ export function HearALetter({ kid, onExit }: { kid: Kid; onExit: () => void }) {
   useEffect(
     () => () => {
       timers.current.forEach(clearTimeout);
-      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      hush();
     },
     [],
   );
