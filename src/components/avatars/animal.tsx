@@ -117,12 +117,18 @@ export function AnimalAvatar({ animal, size = 64, mood = "idle", className }: { 
       {/* cheeks */}
       <circle cx="26" cy="62" r="6" fill={look.cheek} opacity="0.75" />
       <circle cx="74" cy="62" r="6" fill={look.cheek} opacity="0.75" />
-      {/* eyes: scaleY squashes them for a blink or a happy squint */}
-      <g style={{ transformOrigin: "50px 50px", transform: `scaleY(${blinking ? 0.1 : smiling ? 0.55 : 1})`, transition: "transform 90ms ease-out" }}>
-        <circle cx="37" cy="50" r="5.2" fill="#2A1F3D" />
-        <circle cx="63" cy="50" r="5.2" fill="#2A1F3D" />
-        <circle cx="38.8" cy="48.2" r="1.7" fill="#fff" />
-        <circle cx="64.8" cy="48.2" r="1.7" fill="#fff" />
+      {/* eyes: round and wide open, with a bigger sparkle when happy; scaleY squashes them only for a blink */}
+      <g style={{ transformOrigin: "50px 50px", transform: `scaleY(${blinking ? 0.1 : 1})`, transition: "transform 90ms ease-out" }}>
+        <circle cx="37" cy="50" r={smiling ? 5.8 : 5.2} fill="#2A1F3D" />
+        <circle cx="63" cy="50" r={smiling ? 5.8 : 5.2} fill="#2A1F3D" />
+        <circle cx="38.8" cy="48.2" r={smiling ? 2.2 : 1.7} fill="#fff" />
+        <circle cx="64.8" cy="48.2" r={smiling ? 2.2 : 1.7} fill="#fff" />
+        {smiling ? (
+          <>
+            <circle cx="35.4" cy="52.4" r="0.9" fill="#fff" />
+            <circle cx="61.4" cy="52.4" r="0.9" fill="#fff" />
+          </>
+        ) : null}
       </g>
       {/* nose and mouth */}
       <ellipse cx="50" cy="61" rx="4.6" ry="3.4" fill="#2A1F3D" />
