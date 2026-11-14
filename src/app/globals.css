@@ -18,11 +18,29 @@
   --color-warn-soft: #fbefd9;
   --color-bad: #b83a2e;
   --color-bad-soft: #f9e3e0;
+
+  /* Mobile app, parent screens: lavender, white cards, near-black ink, pink and orange accents. */
+  --color-night: #1b1433;
+  --color-night-soft: #6b6585;
+  --color-lilac: #c5bff5;
+  --color-lilac-soft: #e9e6fb;
+  --color-mist: #f6f5fd;
+  --color-candy: #f29be3;
+  --color-peach: #f4b56e;
+  --color-mint: #a9e5c9;
+  /* Kid screens: sky and clouds. */
+  --color-sky: #bfe0fa;
+  --color-sky-soft: #eaf5fe;
+  --color-sky-deep: #6fb6ef;
+  /* Assistant: deep space. */
+  --color-space: #050b1e;
 }
 
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-read: var(--font-lexend);
+  --font-app: var(--font-poppins);
+  --font-kid: var(--font-fredoka);
 }
 
 body {
@@ -50,4 +68,51 @@ body {
     from { opacity: 0; transform: translateY(0.08em) scale(0.96); }
     to { opacity: 1; transform: none; }
   }
+}
+
+/* ---------- Mobile app ---------- */
+
+/* The centre button of the bottom bar: a small glowing planet. */
+.assistant-orb {
+  background: radial-gradient(circle at 32% 28%, #9fd0ff 0%, #4f7dff 38%, #2a2f9e 72%, #1b1433 100%);
+  box-shadow: 0 8px 22px rgba(79, 125, 255, 0.55), inset 0 0 14px rgba(255, 255, 255, 0.35);
+}
+
+/* The big orb on the assistant screen: three light ribbons turning around a dark sphere. */
+.orb {
+  position: relative;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #16327a 0%, #07113a 55%, #030716 100%);
+  box-shadow: 0 0 80px 10px rgba(64, 132, 255, 0.45), inset 0 0 40px rgba(90, 160, 255, 0.5);
+}
+.orb::before,
+.orb::after,
+.orb > i {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #bfe1ff;
+  border-left-color: rgba(120, 180, 255, 0.55);
+  filter: drop-shadow(0 0 8px #6fb0ff) blur(0.4px);
+}
+.orb::after { inset: 6%; transform: rotate(120deg); }
+.orb > i { inset: 3%; transform: rotate(240deg) }
+
+@media (prefers-reduced-motion: no-preference) {
+  .assistant-orb { animation: orb-pulse 2.8s ease-in-out infinite; }
+  @keyframes orb-pulse {
+    0%, 100% { box-shadow: 0 8px 22px rgba(79, 125, 255, 0.55), inset 0 0 14px rgba(255, 255, 255, 0.35); }
+    50% { box-shadow: 0 8px 32px 6px rgba(79, 125, 255, 0.75), inset 0 0 18px rgba(255, 255, 255, 0.5); }
+  }
+  .orb { animation: orb-breathe 5s ease-in-out infinite; }
+  .orb::before { animation: orb-spin 7s linear infinite; }
+  .orb::after { animation: orb-spin 9s linear infinite reverse; }
+  .orb > i { animation: orb-spin 11s linear infinite; }
+  @keyframes orb-spin { to { rotate: 360deg; } }
+  @keyframes orb-breathe { 0%, 100% { scale: 1; } 50% { scale: 1.04; } }
+
+  .cloud-drift { animation: cloud-drift 26s ease-in-out infinite alternate; }
+  @keyframes cloud-drift { from { translate: -14px 0; } to { translate: 18px 0; } }
 }
