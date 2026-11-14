@@ -197,13 +197,16 @@ export default function ProgressPage() {
 
       <div className="grid grid-cols-3 gap-3">
         {[
-          { icon: "star" as const, value: active.stars, label: "stars", tone: "bg-peach/60" },
-          { icon: "flame" as const, value: active.streakDays, label: "day streak", tone: "bg-candy/50" },
-          { icon: "check" as const, value: checks.length, label: checks.length === 1 ? "check" : "checks", tone: "bg-mint/70" },
+          { icon: "star" as const, size: 22, value: active.stars, label: "stars", tone: "bg-peach/60" },
+          { icon: "flame" as const, size: 26, value: active.streakDays, label: "day streak", tone: "bg-candy/50" },
+          { icon: "check" as const, size: 20, value: checks.length, label: checks.length === 1 ? "check" : "checks", tone: "bg-mint/70" },
         ].map((s) => (
           <div key={s.label} className={`rounded-[22px] p-3.5 ${s.tone}`}>
-            <Icon name={s.icon} size={24} />
-            <span className="mt-2 block text-[22px] font-semibold leading-none">{s.value}</span>
+            {/* Equal chips, so icons of different shapes line up with the text and look the same size. */}
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/65">
+              <Icon name={s.icon} size={s.size} />
+            </span>
+            <span className="mt-2.5 block text-[22px] font-semibold leading-none">{s.value}</span>
             <span className="mt-1 block text-xs font-medium text-night/70">{s.label}</span>
           </div>
         ))}
