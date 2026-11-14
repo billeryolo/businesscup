@@ -1,0 +1,603 @@
+<title>ReadCheck Family Blueprint</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a single reading column with a sticky section nav; each section is a "worksheet page".
+   Domain colours (letters / reading / numbers / math) and owner colours (Dev A / Dev B) carry meaning everywhere. */
+:root{
+  --bg:#F5F7FB; --surface:#FFFFFF; --ink:#1A2140; --muted:#58617F; --line:#DCE1EC; --soft:#EEF1F8;
+  --accent:#3646C4;
+  --letters:#D9482F; --reading:#2470C7; --numbers:#B7800B; --math:#23885A; --ai:#7C3AC4;
+  --a:#0D7585; --b:#B04A14;
+  --ok:#23885A; --warn:#B7800B; --bad:#C23A2B;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1220; --surface:#171B2C; --ink:#E7EAF5; --muted:#9AA2C1; --line:#2A3049; --soft:#1F2438;
+  --accent:#8E9BFF; --letters:#FF7D66; --reading:#6EAEF6; --numbers:#F2C04F; --math:#5ECC98; --ai:#BC90F3;
+  --a:#4DC3D2; --b:#F29560; --ok:#5ECC98; --warn:#F2C04F; --bad:#FF7D66; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1220; --surface:#171B2C; --ink:#E7EAF5; --muted:#9AA2C1; --line:#2A3049; --soft:#1F2438;
+  --accent:#8E9BFF; --letters:#FF7D66; --reading:#6EAEF6; --numbers:#F2C04F; --math:#5ECC98; --ai:#BC90F3;
+  --a:#4DC3D2; --b:#F29560; --ok:#5ECC98; --warn:#F2C04F; --bad:#FF7D66; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--body);margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(30px,5vw,48px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.01em}
+h3{font-size:17px;font-weight:600}
+p{margin:0}
+.lede{font-size:17px;color:var(--muted);max-width:65ch}
+.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+code,.mono{font-family:var(--mono);font-size:.86em}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+header.hero{background:var(--surface);border-bottom:1px solid var(--line)}
+header.hero .wrap{padding-block:40px 32px;display:grid;gap:18px}
+.alphabet{display:flex;gap:6px;flex-wrap:wrap;font:800 22px/1 var(--display)}
+.alphabet span{width:38px;height:38px;display:grid;place-items:center;border-radius:9px;color:#fff}
+.notice{border:1px dashed var(--line);background:var(--soft);border-radius:10px;padding:10px 14px;font-size:13.5px;color:var(--muted);max-width:80ch}
+
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+nav.toc .wrap{display:flex;gap:4px;overflow-x:auto;padding-block:8px;scrollbar-width:none}
+nav.toc a{flex:none;text-decoration:none;color:var(--muted);font-weight:500;font-size:13.5px;padding:6px 11px;border-radius:999px}
+nav.toc a:hover{background:var(--soft);color:var(--ink)}
+
+section{padding-block:48px 8px;scroll-margin-top:56px}
+section > .wrap{display:grid;gap:22px}
+.sec-head{display:grid;gap:8px}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+.pill{display:inline-flex;align-items:center;gap:5px;font:600 11.5px/1 var(--body);padding:4px 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.own-A{color:var(--a)} .own-B{color:var(--b)} .own-AB{color:var(--accent)}
+.pr-24h{color:var(--ok)} .pr-V1{color:var(--warn)} .pr-Later{color:var(--muted)}
+.ai-tag{color:var(--ai)}
+.exists{font:600 11px/1 var(--body);color:var(--muted);background:var(--soft);padding:4px 7px;border-radius:6px;white-space:nowrap}
+
+/* Reuse strip */
+.reuse{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.reuse div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:4px;min-width:0}
+.reuse b{font-weight:600}
+.reuse span{font-size:13px;color:var(--muted)}
+
+/* Archetypes */
+.arch{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:900px){.arch{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px;align-content:start;min-width:0}
+.card .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13.5px}
+.facts dt{color:var(--muted)} .facts dd{margin:0}
+.bench{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.bench div{display:grid;grid-template-columns:4px 1fr;gap:10px;font-size:13.5px}
+.bench div::before{content:"";border-radius:2px;background:var(--c)}
+.bench small{display:block;color:var(--muted);font:500 11px/1.4 var(--mono)}
+.overlay{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--bad);border-radius:10px;padding:14px 16px;display:grid;gap:4px}
+
+/* ORF chart */
+.chartbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px}
+.chartbox svg{width:100%;height:auto;display:block}
+.chartbox svg text{fill:var(--muted);font:500 11px var(--body)}
+
+/* Architecture diagram */
+.arch-diagram{display:grid;grid-template-columns:1fr 250px;gap:14px}
+@media (max-width:820px){.arch-diagram{grid-template-columns:1fr}}
+.layers{display:grid;gap:8px}
+.layer{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px}
+.layer > .label{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.boxes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.box{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:8px 10px;font-size:13px;display:grid;gap:4px;position:relative;min-width:0}
+.box b{font-weight:600;font-size:13.5px}
+.box .hooks{display:flex;gap:4px;flex-wrap:wrap}
+.hook{font:600 10.5px/1 var(--mono);color:var(--ai);border:1px solid var(--ai);border-radius:5px;padding:3px 5px}
+.arrow{text-align:center;color:var(--muted);font:500 12px var(--mono)}
+.ai-col{border:2px solid var(--ai);border-radius:14px;padding:14px;display:grid;gap:8px;align-content:start;background:var(--surface)}
+.ai-col h3{color:var(--ai)}
+.ext{border-radius:8px;padding:8px 10px;font-size:13px;border:1px dashed var(--line)}
+
+/* Journey */
+.journey{display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:8px;overflow-x:auto;padding-bottom:6px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;align-content:start;min-width:130px}
+.step .n{font:600 11px/1 var(--mono);color:var(--muted)}
+.step b{font-size:14px;line-height:1.3}
+.step p{font-size:12.5px;color:var(--muted)}
+.step .hooks{display:flex;gap:4px;flex-wrap:wrap}
+.who{font:600 10.5px/1 var(--body);text-transform:uppercase;letter-spacing:.06em}
+.who.kid{color:var(--math)} .who.parent{color:var(--reading)}
+
+/* Requirements table */
+.filters{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+.fgroup{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.fgroup > span{font-size:12px;color:var(--muted);margin-right:4px}
+.chip{font:500 12.5px/1 var(--body);padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+#q{font:14px var(--body);padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0;width:220px;max-width:100%}
+.count{font-size:13px;color:var(--muted)}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
+th{text-align:left;font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:12px;border-bottom:1px solid var(--line);background:var(--soft)}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.id{font:500 12px var(--mono);white-space:nowrap}
+td .ac{color:var(--muted);font-size:12.5px;margin-top:3px}
+tr.group td{background:var(--soft);font:600 12.5px var(--body);color:var(--ink);padding:8px 12px}
+
+/* AI section */
+.principle{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:700px){.principle{grid-template-columns:1fr}}
+.principle div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:6px}
+.principle .rules{border-top:4px solid var(--ink)} .principle .talk{border-top:4px solid var(--ai)}
+.aigrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media (max-width:820px){.aigrid{grid-template-columns:1fr}}
+.aicard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px;align-content:start;min-width:0}
+.aicard .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.aicard .top .hook{font-size:12px;padding:4px 6px}
+.aicard h3{flex:1 1 180px}
+.io{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px}
+.io dt{color:var(--muted);font:500 11px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.05em}
+.io dd{margin:0}
+.demo{font-size:12.5px;background:var(--soft);border-radius:8px;padding:8px 10px;font-family:var(--mono);color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Team split */
+.team{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){.team{grid-template-columns:1fr}}
+.dev{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:10px;align-content:start}
+.dev.A{border-top:5px solid var(--a)} .dev.B{border-top:5px solid var(--b)}
+.dev ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px}
+.contracts{background:var(--surface);border:2px dashed var(--accent);border-radius:14px;padding:16px 18px;display:grid;gap:10px}
+.contracts ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px}
+
+.gantt{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow-x:auto}
+.grow{display:grid;grid-template-columns:150px repeat(8,minmax(70px,1fr));min-width:760px;border-bottom:1px solid var(--line)}
+.grow:last-child{border-bottom:0}
+.grow > div{padding:8px 10px;font-size:12.5px}
+.grow.head > div{font:600 11px/1 var(--mono);color:var(--muted);background:var(--soft);padding:10px}
+.lane{font-weight:600;display:flex;align-items:center}
+.bar{border-radius:7px;padding:7px 9px;font-size:12px;line-height:1.3;margin:2px 0;color:var(--ink);border-left:4px solid var(--c);background:color-mix(in srgb,var(--c) 14%,var(--surface))}
+
+/* Jury case */
+.rubric{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px 18px}
+.rrow{display:grid;grid-template-columns:200px 120px 1fr;gap:16px;align-items:center;padding-block:12px;border-bottom:1px solid var(--line)}
+.rrow:last-child{border-bottom:0}
+@media (max-width:760px){.rrow{grid-template-columns:1fr auto;gap:6px 12px}.rrow p{grid-column:1 / -1}}
+.rlab{display:flex;justify-content:space-between;gap:8px}
+.rlab span{font:500 13px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.rbar{height:10px;border-radius:999px;background:var(--soft);overflow:hidden}
+.rbar i{display:block;height:100%;background:var(--accent);border-radius:999px;width:0}
+.rbar i{max-width:100%;transform-origin:left}
+.rrow p{font-size:13.5px;color:var(--muted);min-width:0}
+.filter4{display:grid;gap:10px}
+.f4grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:900px){.f4grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.f4grid{grid-template-columns:1fr}}
+.f4{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:6px;align-content:start}
+.f4 p{font-size:13px;color:var(--muted)}
+.f4 .mark{justify-self:start;font:600 11px/1 var(--body);padding:4px 8px;border-radius:999px;border:1px solid currentColor}
+.f4.pass .mark{color:var(--ok)} .f4.part .mark{color:var(--warn)}
+
+/* ERD + risks */
+.erd{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;overflow-x:auto}
+.risks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.risks div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:4px;font-size:13.5px}
+.risks b{font-weight:600}
+footer{padding-block:40px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="alphabet" aria-hidden="true">
+      <span style="background:var(--letters)">A</span><span style="background:var(--reading)">b</span><span style="background:var(--numbers)">3</span><span style="background:var(--math)">+</span>
+    </div>
+    <div class="eyebrow">Business Cup hackathon · Skills track · B2C · 24 hours · team of 2 developers</div>
+    <h1>ReadCheck Family: a 10-minute daily learning app for parents and kids</h1>
+    <p class="lede">A 1-minute check tells a parent whether their child reads and counts at grade level. Then 10 minutes a day, matched to the child's mistakes, closes the gap. Kids aged 3–10 practise letters, reading, numbers and math. The parent, the 25–40-year-old buyer, gets a verdict against school benchmarks, one thing to do tonight, and a plan.</p>
+    <p class="notice">Built from the <code>billeryolo/businesscup</code> repo (ReadCheck: Next.js 16, Supabase, Claude) and the team's idea-selection chat: jury rubric, the "acute pain" filter, and Skills idea #8, "10 minutes of reading and math a day". The main market is the US, with benchmarks kept in a per-country table so other countries can follow. "ReadCheck Family" is a working name.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <div class="wrap">
+    <a href="#case">Why it wins</a><a href="#reuse">What exists</a><a href="#archetypes">Archetypes</a><a href="#architecture">Architecture</a><a href="#journey">Journey</a><a href="#requirements">Requirements</a><a href="#ai">AI layer</a><a href="#team">Team split</a><a href="#data">Data model</a><a href="#risks">Risks</a>
+  </div>
+</nav>
+
+<main>
+<section id="case"><div class="wrap">
+  <div class="sec-head"><div class="eyebrow">The case for the jury</div><h2>Why this idea, scored the way the jury scores</h2>
+  <p class="lede">Say it in one line on stage: <b>"Know in one minute if your child reads at grade level, then fix it in ten minutes a day, for less than two hours of tutoring a year."</b></p></div>
+
+  <div class="rubric">
+    <div class="rrow"><div class="rlab"><b>Product &amp; engineering</b><span>40%</span></div><div class="rbar"><i style="width:40%"></i></div><p>The reading check already works end to end with a microphone, a "parent scores it" mode and a demo reader. In 24 hours we add math and letters on the same pattern. Demo it live, with the fallback ready.</p></div>
+    <div class="rrow"><div class="rlab"><b>Value &amp; retention</b><span>20%</span></div><div class="rbar"><i style="width:20%"></i></div><p>The child uses it daily and the parent opens it weekly for the check. The child moves through archetypes from age 3 to 10, so a family can stay subscribed for years. Compare the wedding planner, where churn is near 100% after the event.</p></div>
+    <div class="rrow"><div class="rlab"><b>Problem &amp; user</b><span>15%</span></div><div class="rbar"><i style="width:15%"></i></div><p>A parent aged 25–40 with a child aged 3–10 who worries "is my kid behind?" The free check turns that worry into a number and a plan.</p></div>
+    <div class="rrow"><div class="rlab"><b>Business potential</b><span>15%</span></div><div class="rbar"><i style="width:15%"></i></div><p>$99 a year (or $14.99 a month) means about 1.01 million paying families for $100M ARR. The free check is the acquisition hook because the result is shareable. LTV beats CAC if a family stays more than one year.</p></div>
+    <div class="rrow"><div class="rlab"><b>Novelty</b><span>10%</span></div><div class="rbar"><i style="width:10%"></i></div><p>Learning apps teach. This one measures against school norms and writes practice stories at the child's exact phonics level.</p></div>
+  </div>
+
+  <div class="filter4">
+    <h3>The team's "acute pain" filter</h3>
+    <div class="f4grid">
+      <div class="f4 pass"><span class="mark">Pass</span><b>Lasts months</b><p>Years: learning to read and count runs from age 3 to 10.</p></div>
+      <div class="f4 pass"><span class="mark">Pass</span><b>Already pay a specialist</b><p>Parents pay tutors and learning centres for the same skills, and school reading checks happen only a few times a year.</p></div>
+      <div class="f4 part"><span class="mark">Partly</span><b>Pain is visible now</b><p>Often invisible until a teacher or report card flags it. Our answer: the free 1-minute check makes it visible today.</p></div>
+      <div class="f4 part"><span class="mark">Partly</span><b>No cheap substitute</b><p>Free apps such as Khan Academy Kids teach well. None of them tells a parent "your child reads 62 words a minute; typical is 97; here is the plan." Pitch the measurement and the plan, not the games.</p></div>
+    </div>
+  </div>
+
+  <div class="notice">Avoid the Business Cup failure modes: one clear solution, a live demo instead of this page's detail, a real problem backed by norms, and a rehearsed delivery. The 48 requirements below are for the two of you, not for the slides.</div>
+</div></section>
+
+<section id="reuse"><div class="wrap">
+  <div class="sec-head"><div class="eyebrow">Starting point</div><h2>What the repo already does</h2>
+  <p class="lede">About 9,000 lines of tested code. These pieces become the reading module of the bigger app and the pattern the other modules copy.</p></div>
+  <div class="reuse">
+    <div><b>1-minute reading check</b><span>WCPM and accuracy vs Hasbrouck &amp; Tindal 2017 norms, grades 1–4 (<code>norms.ts</code>, <code>assess.ts</code>)</span></div>
+    <div><b>Speech + manual scoring</b><span>Browser speech recognition, word alignment, and a "parent taps mistakes" mode (<code>align.ts</code>, <code>speech/</code>)</span></div>
+    <div><b>Mistake patterns</b><span>Decoding, first-letter guessing, long pauses, lost place, skipped small words (<code>patterns.ts</code>)</span></div>
+    <div><b>Verdict and plan</b><span>On track / practice / talk to the teacher, plus a 4-week plan (<code>summary.ts</code>)</span></div>
+    <div><b>Claude parent summary</b><span>Structured output, child's name replaced by a placeholder, falls back to rules (<code>ai/parent-summary.ts</code>)</span></div>
+    <div><b>Accounts and progress</b><span>Magic-link sign-in, up to 3 children, weekly re-check chart, row-level security (<code>supabase/</code>)</span></div>
+    <div><b>Practice mode</b><span>One big word at a time and syllable splitting, never scored (<code>practice/</code>)</span></div>
+    <div><b>Paywall interest test</b><span>Yearly / monthly "start free trial" clicks recorded (<code>api/interest</code>)</span></div>
+  </div>
+</div></section>
+
+<section id="archetypes"><div class="wrap">
+  <div class="sec-head"><div class="eyebrow">Who it's for</div><h2>Three learner archetypes</h2>
+  <p class="lede">The child's age or grade picks the archetype. The archetype decides which domains show up, how long a session lasts, how much the parent drives, and which benchmark the child is compared with.</p>
+  <div class="legend"><span><i style="background:var(--letters)"></i>Letters &amp; sounds</span><span><i style="background:var(--reading)"></i>Reading</span><span><i style="background:var(--numbers)"></i>Numbers</span><span><i style="background:var(--math)"></i>Math</span></div></div>
+  <div class="arch">
+    <article class="card">
+      <div class="top"><h3>Little Explorers</h3><span class="eyebrow">Pre-K · ages 3–5</span></div>
+      <dl class="facts"><dt>Session</dt><dd>5 minutes, audio-led</dd><dt>Parent role</dt><dd>Sits with the child, taps answers when needed</dd><dt>Domains</dt><dd>Letters, sounds, rhyme, counting, shapes</dd><dt>Check</dt><dd>Letters named in 1 minute; counting objects</dd></dl>
+      <div class="bench">
+        <div style="--c:var(--letters)"><span>Names letters and the sounds they make; hears rhymes and claps syllables<small>Head Start ELOF · Literacy (ages 3–5)</small></span></div>
+        <div style="--c:var(--numbers)"><span>Counts out loud to 20; counts up to 10 objects one by one<small>Head Start ELOF · Mathematics Development</small></span></div>
+      </div>
+    </article>
+    <article class="card">
+      <div class="top"><h3>Word Builders</h3><span class="eyebrow">K–1 · ages 5–7</span></div>
+      <dl class="facts"><dt>Session</dt><dd>10 minutes</dd><dt>Parent role</dt><dd>Starts the session, joins read-aloud</dd><dt>Domains</dt><dd>Letter sounds, phonics, sight words, early reading, +/− within 10–20</dd><dt>Check</dt><dd>Letter naming, then 1-min reading from grade 1 winter</dd></dl>
+      <div class="bench">
+        <div style="--c:var(--letters)"><span>Names all upper- and lowercase letters; one sound per consonant<small>CCSS RF.K.1d · RF.K.3a</small></span></div>
+        <div style="--c:var(--reading)"><span>Reads common sight words; decodes one-syllable words. Grade 1 median: 29 WCPM in winter, 60 in spring<small>CCSS RF.K.3c · RF.1.3 · Hasbrouck &amp; Tindal 2017</small></span></div>
+        <div style="--c:var(--math)"><span>Counts to 100; adds and subtracts within 5 fluently (K), within 10 (grade 1)<small>CCSS K.CC.A.1 · K.OA.A.5 · 1.OA.C.6</small></span></div>
+      </div>
+    </article>
+    <article class="card">
+      <div class="top"><h3>Fluent Readers</h3><span class="eyebrow">Grades 2–4 · ages 7–10</span></div>
+      <dl class="facts"><dt>Session</dt><dd>15 minutes, mostly independent</dd><dt>Parent role</dt><dd>Runs the weekly check, reads the result</dd><dt>Domains</dt><dd>Fluency, comprehension, math facts, place value</dd><dt>Check</dt><dd>1-min reading (exists) and 1-min math facts</dd></dl>
+      <div class="bench">
+        <div style="--c:var(--reading)"><span>Spring median WCPM: grade 2 → 100, grade 3 → 112, grade 4 → 133<small>Hasbrouck &amp; Tindal 2017 · CCSS RF.2–4.4</small></span></div>
+        <div style="--c:var(--math)"><span>All one-digit sums from memory by end of grade 2; all one-digit products by end of grade 3; multi-digit +/− in grade 4<small>CCSS 2.OA.B.2 · 3.OA.C.7 · 4.NBT.B.4</small></span></div>
+      </div>
+    </article>
+  </div>
+  <div class="overlay"><b>Extra-support overlay (not a fourth archetype)</b><span style="font-size:14px;color:var(--muted)">Switches on when a check lands below the 25th percentile or under 90% accuracy, the existing "talk to the teacher" rule. Sessions get shorter and more repetitive, the teacher note is shown first, and the app never names a condition.</span></div>
+
+  <div class="chartbox">
+    <div class="top" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><h3>Reading benchmark already in the code: median words correct per minute</h3><span class="eyebrow">50th percentile · Hasbrouck &amp; Tindal 2017</span></div>
+    <div style="overflow-x:auto"><svg viewBox="0 0 640 230" role="img" aria-label="Median WCPM by grade and season: grade 1 winter 29 spring 60; grade 2 fall 50 winter 84 spring 100; grade 3 fall 83 winter 97 spring 112; grade 4 fall 94 winter 120 spring 133" id="orf" style="min-width:520px"></svg></div>
+    <div class="legend"><span><i style="background:var(--reading);opacity:.35"></i>Fall</span><span><i style="background:var(--reading);opacity:.65"></i>Winter</span><span><i style="background:var(--reading)"></i>Spring</span><span>Grade 1 has no fall norm</span></div>
+  </div>
+</div></section>
+
+<section id="architecture"><div class="wrap">
+  <div class="sec-head"><div class="eyebrow">How it fits together</div><h2>System map</h2>
+  <p class="lede">One Next.js app with two modes on the same device. Scoring stays in plain, tested TypeScript. The AI layer sits beside the engine and is called through a single gateway, so every AI feature has the same privacy rules and the same fallback.</p>
+  <div class="legend"><span><span class="pill own-A">A</span> Dev A owns</span><span><span class="pill own-B">B</span> Dev B owns</span><span><span class="hook">AI-n</span> AI hook (see AI layer)</span></div></div>
+  <div class="arch-diagram">
+    <div class="layers">
+      <div class="layer"><div class="label"><span class="eyebrow">Clients · mobile-first PWA</span></div>
+        <div class="boxes">
+          <div class="box"><b>Kid mode <span class="pill own-A">A</span></b>Big buttons, audio prompts, stars, locked behind a parent gate</div>
+          <div class="box"><b>Parent mode <span class="pill own-B">B</span></b>Dashboard, results, plan, settings, billing</div>
+        </div></div>
+      <div class="arrow">↓ server actions / route handlers ↓</div>
+      <div class="layer"><div class="label"><span class="eyebrow">Learning engine · <code>src/lib/learning</code></span><span class="pill own-A">A</span></div>
+        <div class="boxes">
+          <div class="box"><b>Skill map</b>Skills per domain tagged with standard codes</div>
+          <div class="box"><b>Activity runner</b>Letters, reading, numbers, math activities<div class="hooks"><span class="hook">AI-4</span><span class="hook">AI-5</span></div></div>
+          <div class="box"><b>Checks &amp; norms</b>1-minute checks, verdicts (reading exists)<div class="hooks"><span class="hook">AI-3</span><span class="hook">AI-6</span></div></div>
+          <div class="box"><b>Next-step picker</b>Mastery per skill decides tomorrow's session<div class="hooks"><span class="hook">AI-9</span></div></div>
+        </div></div>
+      <div class="arrow">↓ attempts &amp; check results ↓</div>
+      <div class="layer"><div class="label"><span class="eyebrow">Platform · <code>src/lib/platform</code></span><span class="pill own-B">B</span></div>
+        <div class="boxes">
+          <div class="box"><b>Family &amp; profiles</b>Parents, children, archetype, consent</div>
+          <div class="box"><b>Progress</b>Per-domain charts, streaks<div class="hooks"><span class="hook">AI-2</span><span class="hook">AI-8</span></div></div>
+          <div class="box"><b>Parent coach</b>Questions about this child<div class="hooks"><span class="hook">AI-7</span></div></div>
+          <div class="box"><b>Billing &amp; reminders</b>Trial, subscription, calendar, email</div>
+        </div></div>
+      <div class="arrow">↓</div>
+      <div class="layer"><div class="label"><span class="eyebrow">Data · Supabase Postgres + Auth, row-level security</span><span class="pill own-B">B</span></div>
+        <div class="boxes"><div class="box">profiles · children · skills · attempts · checks · skill_mastery · ai_generations</div></div></div>
+    </div>
+    <aside class="ai-col">
+      <h3>AI layer</h3>
+      <p style="font-size:13px;color:var(--muted)">One gateway, many features.</p>
+      <div class="box"><b>AI gateway <span class="pill own-B">B</span></b>Prompt registry, zod-checked output, name placeholder, rule fallback, cost cap per family<div class="hooks"><span class="hook">AI-1</span></div></div>
+      <div class="box"><b>Generators <span class="pill own-A">A</span></b>Practice stories, word problems</div>
+      <div class="box"><b>Writers <span class="pill own-B">B</span></b>Result summary, weekly digest, coach answers</div>
+      <div class="box"><b>Speech <span class="pill own-A">A</span></b>Child-tuned speech-to-text with word timings</div>
+      <span class="eyebrow" style="margin-top:6px">External services</span>
+      <div class="ext">Claude API (text)</div>
+      <div class="ext">Speech-to-text provider</div>
+      <div class="ext">Stripe · email sender</div>
+    </aside>
+  </div>
+</div></section>
+
+<section id="journey"><div class="wrap">
+  <div class="sec-head"><div class="eyebrow">A week in the app</div><h2>Family journey and where AI plugs in</h2>
+  <p class="lede">The daily loop is short practice. The weekly loop is a 1-minute check and a result the parent can act on. AI hooks are marked on the step they serve.</p></div>
+  <div class="journey">
+    <div class="step"><span class="n">Step 1</span><span class="who parent">Parent</span><b>Signs in, adds a child</b><p>Birth year or grade picks the archetype. Consent for voice.</p></div>
+    <div class="step"><span class="n">Step 2</span><span class="who kid">Kid + parent</span><b>Placement, 3–5 min per domain</b><p>Finds the starting skill in letters, reading and math.</p><div class="hooks"><span class="hook">AI-3</span></div></div>
+    <div class="step"><span class="n">Step 3</span><span class="who kid">Kid</span><b>Daily session, 5–15 min</b><p>Mixed activities chosen from mastery. Stars and streak.</p><div class="hooks"><span class="hook">AI-4</span><span class="hook">AI-5</span><span class="hook">AI-9</span></div></div>
+    <div class="step"><span class="n">Step 4</span><span class="who parent">Parent</span><b>Tonight's 5 minutes</b><p>One offline game or tip, matched to today's mistakes.</p><div class="hooks"><span class="hook">AI-2</span></div></div>
+    <div class="step"><span class="n">Step 5</span><span class="who kid">Kid</span><b>Weekly 1-minute check</b><p>New story or fact set. Scored by rules against the benchmark.</p><div class="hooks"><span class="hook">AI-3</span><span class="hook">AI-6</span></div></div>
+    <div class="step"><span class="n">Step 6</span><span class="who parent">Parent</span><b>Result, verdict, plan</b><p>Chart vs. expected weekly growth; note for the teacher.</p><div class="hooks"><span class="hook">AI-2</span></div></div>
+    <div class="step"><span class="n">Step 7</span><span class="who parent">Parent</span><b>Sunday digest, questions</b><p>One summary across domains; ask the coach about this child.</p><div class="hooks"><span class="hook">AI-7</span><span class="hook">AI-8</span></div></div>
+  </div>
+</div></section>
+
+<section id="requirements"><div class="wrap">
+  <div class="sec-head"><div class="eyebrow">What we build</div><h2>Functional requirements</h2>
+  <p class="lede">Each row has an owner and a release. <b>Demo 24h</b> is what has to work end to end on stage. V1 is the first paid version after the hackathon, and Later comes after real families use it. "Exists" means the repo already does it for reading. The owner column is the product view; the exact frontend and backend split for each requirement, with its page and endpoints, is on the <a href="https://claude.ai/artifact/7UGBH9dD2UQRXT5enNdssS">API contract page</a>.</p></div>
+  <div class="filters">
+    <div class="fgroup" data-key="owner"><span>Owner</span><button class="chip" aria-pressed="true" data-v="all">All</button><button class="chip" aria-pressed="false" data-v="A">Dev A</button><button class="chip" aria-pressed="false" data-v="B">Dev B</button></div>
+    <div class="fgroup" data-key="pr"><span>Release</span><button class="chip" aria-pressed="true" data-v="all">All</button><button class="chip" aria-pressed="false" data-v="24h">MVP</button><button class="chip" aria-pressed="false" data-v="V1">V1</button><button class="chip" aria-pressed="false" data-v="Later">Later</button></div>
+    <label for="q" class="fgroup"><span>Search</span><input id="q" type="search" placeholder="e.g. math, consent, AI"></label>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th style="width:84px">ID</th><th>Requirement · how we know it's done</th><th style="width:84px">Owner</th><th style="width:84px">Release</th><th style="width:70px"></th></tr></thead>
+    <tbody id="frs"></tbody>
+  </table></div>
+  <p class="count">Non-functional: mobile-first PWA on iPhone Safari and Android Chrome; kid-mode tap targets of at least 48px and an audio prompt for every instruction; result page under 2 seconds with rules, AI text within 8 seconds or the rules text is shown; all scoring deterministic and unit-tested; WCAG 2.1 AA on parent screens.</p>
+</div></section>
+
+<section id="ai"><div class="wrap">
+  <div class="sec-head"><div class="eyebrow">AI layer</div><h2>Where AI goes, and where it must not</h2></div>
+  <div class="principle">
+    <div class="rules"><h3>Rules measure</h3><p style="font-size:14px;color:var(--muted)">Words correct per minute, accuracy, facts per minute, verdicts and percentile bands come from code and published norms. They must be repeatable and explainable to a teacher, so no model decides a score.</p></div>
+    <div class="talk"><h3>AI explains, generates and listens</h3><p style="font-size:14px;color:var(--muted)">AI turns numbers into plain advice, makes unlimited practice material at the child's exact level, and hears a child's voice better than the browser can. Every AI output has a rules fallback, as the parent summary already does.</p></div>
+  </div>
+  <div class="aigrid" id="aigrid"></div>
+  <div class="notice">Pitch suggestion: demo AI-4 live. Pick an interest ("dinosaurs") and a phonics pattern ("short a"), generate a story, show the checker rejecting a word the child hasn't learned, then read it aloud. AI-2 already works, so it is the safe second demo.</div>
+</div></section>
+
+<section id="team"><div class="wrap">
+  <div class="sec-head"><div class="eyebrow">Two developers</div><h2>Team split</h2>
+  <p class="lede">Split frontend and backend. The backend developer builds every <code>/api</code> route, the scoring, the database and the AI, and tests them against a bare stub page. The frontend developer builds every screen against mocks. Both code against one file, <code>src/lib/api/contract.ts</code>, and connect at the end by flipping <code>NEXT_PUBLIC_API_MOCK</code>. The full list of requirements, pages and endpoints is on the <a href="https://claude.ai/artifact/7UGBH9dD2UQRXT5enNdssS">API contract page</a>.</p></div>
+  <div class="team">
+    <div class="dev A"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3>Frontend · every screen</h3><span class="pill own-A">FE</span></div>
+      <ul><li>Parent screens: login, family dashboard, child page, charts, result page, settings</li><li>Free checks: reading (speech or manual) and math, paywall</li><li>Kid mode: today's session, letters game, math facts, AI story reader</li><li>Stars and streak animations, parent gate</li><li>Browser speech recognition: sends heard words with timestamps</li><li>Calls the backend only through <code>api(name, …)</code>, never Supabase</li><li>Works on mocks from hour 2 to the first join</li></ul></div>
+    <div class="dev B"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h3>Backend · every endpoint</h3><span class="pill own-B">BE</span></div>
+      <ul><li>25 endpoints wrapped in <code>route(name, …)</code></li><li>All scoring: WCPM, norms, verdicts, patterns, math and letter rates</li><li>Children, archetype rules, today's session, attempts, stars</li><li>Supabase migrations (grades −1…4, <code>checks</code>, <code>attempts</code>), RLS</li><li>Signed claim tokens for checks taken before sign-in</li><li>AI gateway: parent summary, story generator with word-list check</li><li>Deployment and seeding the demo family</li></ul></div>
+  </div>
+  <div class="contracts"><h3>The contract, frozen together in hours 0–2</h3>
+    <ul>
+      <li><code>contract.ts</code>: zod schemas plus a registry of 25 endpoints and 13 pages. The only source of truth</li>
+      <li><code>client.ts</code>: typed <code>api()</code> that checks every response against the schema</li>
+      <li><code>mocks.ts</code>: an in-memory backend with the Mia and Leo demo family</li>
+      <li><code>server.ts</code>: <code>route()</code> validates input, formats errors as <code>{ error: { code, message } }</code></li>
+      <li><code>contract.test.ts</code>: runs a full family flow through the mocks, so mocks and contract can't drift</li>
+    </ul></div>
+
+  <div class="gantt" role="table" aria-label="24-hour plan">
+    <div class="grow head" role="row"><div>Lane</div><div>H0–3</div><div>H3–6</div><div>H6–9</div><div>H9–12</div><div>H12–15</div><div>H15–18</div><div>H18–21</div><div>H21–24</div></div>
+    <div class="grow" role="row"><div class="lane">Together</div>
+      <div class="bar" style="--c:var(--accent);grid-column:2 / 3">Contracts, migration (grades −1…4), demo script</div>
+      <div style="grid-column:3 / 8"></div>
+      <div class="bar" style="--c:var(--accent);grid-column:8 / 10">End-to-end test on 2 phones, seed demo family, pitch rehearsal ×3</div></div>
+    <div class="grow" role="row"><div class="lane" style="color:var(--a)">Frontend</div>
+      <div style="grid-column:2 / 3"></div>
+      <div class="bar" style="--c:var(--reading);grid-column:3 / 5">On mocks: login, family, child page, reading + math checks</div>
+      <div class="bar" style="--c:var(--accent);grid-column:5 / 6">Join #1</div>
+      <div class="bar" style="--c:var(--letters);grid-column:6 / 7">Kid mode, letters, stars</div>
+      <div class="bar" style="--c:var(--ai);grid-column:7 / 8">AI story reader, result page</div></div>
+    <div class="grow" role="row"><div class="lane" style="color:var(--b)">Backend</div>
+      <div style="grid-column:2 / 3"></div>
+      <div class="bar" style="--c:var(--b);grid-column:3 / 5">me, children, passage, submitReading, summary, progress</div>
+      <div class="bar" style="--c:var(--accent);grid-column:5 / 6">Join #1</div>
+      <div class="bar" style="--c:var(--math);grid-column:6 / 7">Math, claim, today, attempts</div>
+      <div class="bar" style="--c:var(--ai);grid-column:7 / 8">Story generator, deploy, seed</div></div>
+  </div>
+  <p class="count">The hours count from when you start building. Freeze features at H18 and keep the last six hours for testing and the pitch. If you run late, cut the letters game first and keep math and AI-4. Everything tagged V1 is your post-hackathon roadmap slide.</p>
+</div></section>
+
+<section id="data"><div class="wrap">
+  <div class="sec-head"><div class="eyebrow">Database</div><h2>Data model changes</h2>
+  <p class="lede">Today's schema allows grades 1–4 and one kind of reading. These tables extend it to all domains and ages. <code>grade</code> becomes −1 for Pre-K and 0 for kindergarten.</p></div>
+  <div class="erd"><pre class="mermaid">
+erDiagram
+  profiles ||--o{ children : has
+  children ||--o{ attempts : makes
+  children ||--o{ checks : takes
+  children ||--o{ skill_mastery : tracks
+  skills ||--o{ activities : practised_by
+  skills ||--o{ skill_mastery : measured_as
+  activities ||--o{ attempts : logged_in
+  children ||--o{ ai_generations : receives
+  children {
+    uuid id
+    text first_name
+    smallint grade
+    text archetype
+  }
+  skills {
+    text id
+    text domain
+    text standard_code
+    text archetype
+  }
+  attempts {
+    uuid id
+    text skill_id
+    bool correct
+    int response_ms
+  }
+  checks {
+    uuid id
+    text domain
+    text measure
+    real value
+    text verdict
+  }
+  skill_mastery {
+    uuid child_id
+    text skill_id
+    real p_mastered
+  }
+  ai_generations {
+    uuid id
+    text task
+    jsonb output
+    bool passed_checks
+  }
+</pre></div>
+</div></section>
+
+<section id="risks"><div class="wrap">
+  <div class="sec-head"><div class="eyebrow">Before the pitch</div><h2>Risks and open questions</h2></div>
+  <div class="risks">
+    <div><b>Benchmarks for letters and math facts</b><span style="color:var(--muted)">Reading has published norms. Letter naming and math-fact speed need a sourced table (e.g. DIBELS 8 for letter naming) before the app shows a percentile. Until then, show progress only.</span></div>
+    <div><b>Children's privacy (COPPA)</b><span style="color:var(--muted)">Under-13 users need verifiable parental consent, and AI and speech vendors must be listed. Keep the rule that no audio and no child name leave the server.</span></div>
+    <div><b>Speech accuracy for young kids</b><span style="color:var(--muted)">Browser speech mishears 5-year-olds. Keep "parent scores it" as the default for Pre-K and test a child-tuned provider before relying on it.</span></div>
+    <div><b>AI cost per family</b><span style="color:var(--muted)">Cache generated stories by level and pattern so families share them, use low effort for summaries, and cap calls per family per day.</span></div>
+    <div><b>"There are free apps already"</b><span style="color:var(--muted)">The jury will ask about Khan Academy Kids and similar apps. Answer: they teach; we measure against school norms and tell the parent what to do tonight. Keep the demo on the result page, not on the games.</span></div>
+    <div><b>Live demo failing on stage</b><span style="color:var(--muted)">Product is 40% of the score. Rehearse with the microphone, keep "Watch a demo recording" one tap away, and pre-seed a family with 3 weeks of progress so the chart isn't empty.</span></div>
+    <div><b>Exact standard wording</b><span style="color:var(--muted)">Check the Head Start ELOF indicators and CCSS codes on the archetype cards against the source documents before they go on a slide.</span></div>
+    <div><b>Repo housekeeping</b><span style="color:var(--muted)"><code>docs/SETUP.md</code> still points at another repo and branch, and the README links a <code>PLAN.md</code> that isn't in this repo.</span></div>
+  </div>
+</div></section>
+</main>
+<footer><div class="wrap">Sources: Hasbrouck &amp; Tindal (2017), Technical Report 1702; Common Core State Standards (ELA Foundational Skills, Mathematics); Head Start Early Learning Outcomes Framework (ages 3–5). Jury rubric and acute-pain filter from the team's idea-selection chat (14 Nov 2026). Prices from the repo's paywall. Working draft for the team.</div></footer>
+
+<script>
+(function(){
+  // ---------- ORF median chart ----------
+  const data=[["Grade 1",[null,29,60]],["Grade 2",[50,84,100]],["Grade 3",[83,97,112]],["Grade 4",[94,120,133]]];
+  const svg=document.getElementById("orf"), NS="http://www.w3.org/2000/svg";
+  const W=640,H=230,L=40,R=10,T=14,B=34,max=140, ph=H-T-B, gw=(W-L-R)/4, bw=34;
+  const y=v=>T+ph-(v/max)*ph;
+  const el=(n,a,t)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;svg.appendChild(e);return e};
+  [0,35,70,105,140].forEach(v=>{el("line",{x1:L,x2:W-R,y1:y(v),y2:y(v),stroke:"var(--line)","stroke-width":1});el("text",{x:L-8,y:y(v)+4,"text-anchor":"end"},v)});
+  const op=[.35,.65,1];
+  data.forEach(([g,vals],i)=>{
+    const cx=L+gw*i+gw/2;
+    vals.forEach((v,s)=>{ if(v==null) return;
+      const x=cx+(s-1)*(bw+6)-bw/2;
+      el("rect",{x,y:y(v),width:bw,height:y(0)-y(v),rx:4,fill:"var(--reading)","fill-opacity":op[s]});
+      el("text",{x:x+bw/2,y:y(v)-5,"text-anchor":"middle",style:"fill:var(--ink);font-weight:600"},v);
+    });
+    el("text",{x:cx,y:H-12,"text-anchor":"middle",style:"fill:var(--ink);font-weight:600"},g);
+  });
+
+  // ---------- Requirements ----------
+  const FR=[
+    ["Accounts & family","ACC-1","Parent signs in with a one-time email link","Session persists; works on phone and laptop","B","24h",1],
+    ["Accounts & family","ACC-2","Parent adds up to 3 children with first name and birth year or grade; the app assigns an archetype","Pre-K → Little Explorers, K–1 → Word Builders, 2–4 → Fluent Readers","B","24h",0],
+    ["Accounts & family","ACC-3","Parent can override the archetype and starting level per domain","Change is reflected in the next session","B","V1",0],
+    ["Accounts & family","ACC-4","Kid mode hides settings, billing and results; leaving it needs a parent gate","A child cannot reach parent screens by tapping around","B","V1",0],
+    ["Accounts & family","ACC-5","Versioned consent before the microphone is used","Consent version and time saved on the profile","B","24h",1],
+    ["Accounts & family","ACC-6","Delete one child, or the whole account, with all data","Rows are gone; sign-in no longer works","B","V1",1],
+    ["Accounts & family","ACC-7","Invite a second caregiver with a shared view","Both see the same children and progress","B","Later",0],
+    ["Placement & skills","PLC-1","3–5 minute placement per domain sets the starting skill","Each domain has a starting skill after placement","A","V1",0],
+    ["Placement & skills","PLC-2","Re-place automatically after 3 sessions in a row above 90% or below 60% correct","Level moves up or down one step and the parent is told","A","V1",0],
+    ["Placement & skills","SKL-1","Skill map per domain stored as data, each skill tagged with archetype and standard code","Every activity points at a skill; every skill has a code","A","24h",0],
+    ["Placement & skills","SKL-2","Content library: 52 letter cards with audio, sight-word lists, practice passages, fact sets","Content loads offline-first; audio plays on tap","A","24h",0],
+    ["Placement & skills","SKL-3","Scored check passages are fixed, readability-checked and never AI-generated","Check forms are versioned and identical for every child","A","24h",1],
+    ["Kid activities","ACT-1","Letters: hear a letter name or sound, tap it among 3–4","Response time and correctness logged as an Attempt","A","24h",0],
+    ["Kid activities","ACT-2","Letters: trace the letter with a finger","Stroke order checked; works on phone and tablet","A","V1",0],
+    ["Kid activities","ACT-3","Phonological play: rhyme match and syllable clapping","Fully audio, no reading needed","A","V1",0],
+    ["Kid activities","ACT-4","Reading: big-word and syllable practice extended to sight words","Never scored, as today","A","24h",1],
+    ["Kid activities","ACT-5","Reading: read-aloud with microphone, or parent taps mistakes","Both modes give the same result format","A","24h",1],
+    ["Kid activities","ACT-6","Numbers: count objects up to 20 and tap the number","Range follows the child's level","A","V1",0],
+    ["Kid activities","ACT-7","Math: fact practice (+/− within 10 and 20, ×/÷ within 100) with an answer pad","Facts answered wrong come back sooner","A","24h",0],
+    ["Kid activities","ACT-8","Math: picture word problems read out loud","Answer is checked by code","A","V1",0],
+    ["Kid activities","ACT-9","Every session respects the archetype limit (5 / 10 / 15 min) and ends on a calm stop screen","No session runs past the limit","A","V1",0],
+    ["Kid activities","ENG-1","Stars per session, daily streak, sticker collection; no ads, no loot boxes","Streak survives a missed weekend day","A","24h",0],
+    ["Checks & benchmarks","ASM-1","1-minute reading check: WCPM and accuracy against Hasbrouck & Tindal 2017, grades 1–4","Matches the existing unit tests","A","24h",1],
+    ["Checks & benchmarks","ASM-2","1-minute letter naming check for Pre-K and K","Letters named correctly per minute saved as a CheckResult","A","V1",0],
+    ["Checks & benchmarks","ASM-3","1-minute math facts check per fact family","Correct answers per minute saved as a CheckResult","A","24h",0],
+    ["Checks & benchmarks","ASM-4","Verdict per check (on track / practice / talk to the teacher) with the rule shown","Parent can see why the verdict was given","A","24h",1],
+    ["Checks & benchmarks","ASM-5","Weekly re-check with a new form, compared with expected weekly growth","Chart adds one point per week","A","V1",1],
+    ["Parent experience","PAR-1","Home dashboard: per child, a status chip per domain, last check, streak","Readable in under 5 seconds","B","24h",0],
+    ["Parent experience","PAR-2","Progress chart per domain with the benchmark line","Reading chart exists; letters and math added","B","24h",1],
+    ["Parent experience","PAR-3","Result page: summary, one thing to do tonight, 4-week plan","Works with and without AI","B","24h",1],
+    ["Parent experience","PAR-4","Offline 5-minute games for the parent, matched to today's mistakes","At least 3 games per domain","B","V1",0],
+    ["Parent experience","PAR-5","Weekly reminder: calendar file and in-app nudge","Calendar file exists; push or email added","B","24h",1],
+    ["Parent experience","PAR-6","Weekly digest every Sunday across all domains","Sent only to parents who opted in","B","V1",0],
+    ["Parent experience","PAR-7","Note for the teacher with the numbers, ready to copy","Exists for reading; extended to math","B","V1",1],
+    ["Billing","BIL-1","Free first check per domain, then a paywall that records trial interest","Interest rows recorded by plan and verdict","B","24h",1],
+    ["Billing","BIL-2","Stripe subscription, monthly or yearly, family plan up to 3 children","Test-mode payment completes end to end","B","V1",0],
+    ["Privacy & safety","PRV-1","No audio stored; only per-word right / wrong / skipped","Database holds no audio or transcript","B","24h",1],
+    ["Privacy & safety","PRV-2","Row-level security: a parent sees only their own rows","Policy tests pass for a second account","B","24h",1],
+    ["Privacy & safety","PRV-3","COPPA-ready consent, privacy page lists AI and speech vendors","Reviewed before charging money","B","V1",0],
+    ["AI layer","AI-1","One AI gateway on the server: prompt registry, zod-checked output, name placeholder, rules fallback, daily cost cap","Turning the API key off still gives a full result","B","24h",0],
+    ["AI layer","AI-2","Parent summary and plan for every domain","Reading version exists","B","24h",1],
+    ["AI layer","AI-3","Child-tuned speech-to-text with word timings","Error rate measured on 20 recorded test readings","A","V1",0],
+    ["AI layer","AI-4","Practice stories at the child's level and interests","Every story passes the word-list and readability checks","A","24h",0],
+    ["AI layer","AI-5","Personalised math word problems","Answers computed by code, not the model","A","V1",0],
+    ["AI layer","AI-6","Retell check for comprehension","Key ideas found agree with a parent's judgement on test stories","A","Later",0],
+    ["AI layer","AI-7","Parent coach chat grounded in this child's results","Never names a condition; points to the teacher","B","Later",0],
+    ["AI layer","AI-8","Sunday digest writer","Falls back to a rules template","B","V1",0],
+    ["AI layer","AI-9","Next-step picker: rules first, mastery model later","Tomorrow's session differs after a bad day","A","V1",0],
+  ];
+  const state={owner:"all",pr:"all",q:""};
+  const tbody=document.getElementById("frs"), count=document.getElementById("count");
+  const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+  function render(){
+    const q=state.q.trim().toLowerCase();
+    const rows=FR.filter(r=>(state.owner==="all"||r[4]===state.owner)&&(state.pr==="all"||r[5]===state.pr)&&(!q||r.join(" ").toLowerCase().includes(q)));
+    let html="",last="";
+    rows.forEach(r=>{
+      if(r[0]!==last){html+=`<tr class="group"><td colspan="5">${esc(r[0])}</td></tr>`;last=r[0]}
+      html+=`<tr><td class="id">${r[1]}</td><td>${esc(r[2])}<div class="ac">Done when: ${esc(r[3])}</div></td><td><span class="pill own-${r[4]}">Dev ${r[4]}</span></td><td><span class="pill pr-${r[5]}">${r[5]}</span></td><td>${r[6]?'<span class="exists">Exists</span>':""}</td></tr>`;
+    });
+    tbody.innerHTML=html||`<tr><td colspan="5" style="color:var(--muted)">No requirements match these filters.</td></tr>`;
+    const a=rows.filter(r=>r[4]==="A").length,b=rows.length-a;
+    count.textContent=`${rows.length} shown · Dev A ${a} · Dev B ${b}`;
+  }
+  document.querySelectorAll(".fgroup[data-key]").forEach(g=>{
+    g.addEventListener("click",e=>{const btn=e.target.closest(".chip");if(!btn)return;
+      g.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",c===btn?"true":"false"));
+      state[g.dataset.key]=btn.dataset.v;render();});
+  });
+  document.getElementById("q").addEventListener("input",e=>{state.q=e.target.value;render()});
+  render();
+
+  // ---------- AI cards ----------
+  const AI=[
+    ["AI-1","AI gateway","B","24h","All AI calls","Task name + facts (no child name)","Validated JSON or the rules version","Name placeholder, schema check, daily cap per family, logs without personal data","Rules output. The app is complete without any AI key.",null],
+    ["AI-2","Parent summary & plan","B","24h","Result page, tonight's tip","Scores, benchmark, verdict, mistake patterns","Headline, meaning, focus, 4-week plan, teacher note","Quotes only numbers given; never names a condition (exists today)","Rule-based summary (exists)",null],
+    ["AI-3","Speech recognition for kids","A","V1","Read-aloud, letter check, placement","Child's audio stream, processed and discarded","Words with timings, fed to the existing aligner","Audio never stored; consent required","Browser speech, then parent scoring",null],
+    ["AI-4","Leveled practice stories","A","24h","Daily reading session","Known phonics patterns, sight words, interest, length","A short decodable story + 3 questions","Word-list checker and readability.ts reject anything above level; practice only, never scored","Fixed practice passages (12 exist)","Pattern: short a · interest: dinosaurs\n→ \"Max the cat sat on a mat. A big dinosaur ran past…\"\n✗ rejected word: \"dinosaur\" (not decodable yet) → regenerate"],
+    ["AI-5","Personalised word problems","A","V1","Math session","Fact family, numbers, interest","Problem text only","Numbers and answer are chosen by code; model only words them","Templates with blanks","7 + 5 · interest: football\n→ \"Ana scored 7 goals, then 5 more. How many goals?\" (answer 12 from code)"],
+    ["AI-6","Retell comprehension","A","Later","After a reading check","Child's spoken retell, passage key ideas","Which key ideas were mentioned","Advisory only, shown apart from WCPM","Parent ticks key ideas from a list",null],
+    ["AI-7","Parent coach","B","Later","Parent mode","Question + this child's stored results + vetted tips","Short answer with one next step","No diagnosis; suggests the teacher for concerns; answers only from the tip library","Search over the tip library",null],
+    ["AI-8","Sunday digest","B","V1","Email / push","Week of attempts and checks across domains","Four-sentence summary, one goal for next week","Same gateway rules as AI-2","Rules template",null],
+    ["AI-9","Next-step picker","A","V1","Start of every session","Attempts per skill","Tomorrow's activity mix","Plain rules first, then a mastery model; an LLM only explains the choice to the parent","Fixed order through the skill map",null],
+  ];
+  const grid=document.getElementById("aigrid");
+  grid.innerHTML=AI.map(a=>`<article class="aicard">
+    <div class="top"><span class="hook">${a[0]}</span><h3>${esc(a[1])}</h3><span class="pill own-${a[2]}">Dev ${a[2]}</span><span class="pill pr-${a[3]}">${a[3]}</span></div>
+    <dl class="io"><dt>Where</dt><dd>${esc(a[4])}</dd><dt>In</dt><dd>${esc(a[5])}</dd><dt>Out</dt><dd>${esc(a[6])}</dd><dt>Guard</dt><dd>${esc(a[7])}</dd><dt>Fallback</dt><dd>${esc(a[8])}</dd></dl>
+    ${a[9]?`<div class="demo">${esc(a[9])}</div>`:""}
+  </article>`).join("");
+})();
+</script>
