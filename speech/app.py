@@ -1,7 +1,11 @@
-"""ReadBuddy speech service on Modal: wav2vec2 + Whisper on one GPU.
+"""ReadBuddy speech services on Modal.
 
-One recording in, two transcripts with word timings out. The Next.js route /api/transcribe aligns
-both against the passage and decides each word (src/lib/speech/merge.ts).
+Speech: wav2vec2 + Whisper on one GPU. One recording in, two transcripts with word timings out.
+The Next.js route /api/transcribe aligns both against the passage and decides each word
+(src/lib/speech/merge.ts).
+
+Voice: Kokoro-82M text-to-speech on CPU (see the Voice class at the end). Text in, mp3 out, for
+/api/speak and for the pre-made game clips (speech/make_clips.py).
 
 - wav2vec2-large has no language model, so it writes what it hears ("hose" for "horse"):
   it catches the most real misreadings.
@@ -169,5 +173,97 @@ class Speech:
             }
             result["ms"] = round((time.perf_counter() - started) * 1000)
             return result
+
+        return api
+
+
+# ---------------------------------------------------------------------------------------------
+# Voice: Kokoro-82M text-to-speech (Apache 2.0), on CPU
+# ---------------------------------------------------------------------------------------------
+
+KOKORO_VOICE = "af_heart"  # a warm American English voice
+KOKORO_SPEED = 0.9  # a little slower than an adult reading to an adult
+KOKORO_RATE = 24_000
+MAX_CHARS = 2000
+
+
+def download_kokoro():
+    from kokoro import KPipeline
+
+    # Fetches the weights, the voice and the English pronunciation data into the image.
+    pipe = KPipeline(lang_code="a", repo_id="hexgrad/Kokoro-82M")
+    for _ in pipe("Hello! Let's read together.", voice=KOKORO_VOICE):
+        pass
+
+
+voice_image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .apt_install("ffmpeg", "espeak-ng")
+    .pip_install("kokoro==0.9.4", "soundfile==0.13.1", "numpy==1.26.4", "fastapi[standard]==0.115.6")
+    .run_function(download_kokoro)
+)
+
+
+@app.cls(
+    image=voice_image,
+    cpu=2.0,
+    memory=2048,
+    timeout=120,
+    scaledown_window=300,
+    min_containers=int(os.environ.get("MIN_CONTAINERS", "0")),
+    secrets=[modal.Secret.from_name("readcheck-speech")],
+)
+class Voice:
+    @modal.enter()
+    def load(self):
+        from kokoro import KPipeline
+
+        self.pipe = KPipeline(lang_code="a", repo_id="hexgrad/Kokoro-82M")
+
+    def synthesize(self, text: str, speed: float) -> bytes:
+        import numpy as np
+
+        chunks = [np.asarray(audio, dtype=np.float32) for _, _, audio in self.pipe(text, voice=KOKORO_VOICE, speed=speed) if audio is not None]
+        if not chunks:
+            raise ValueError("nothing to say")
+        pcm = np.concatenate(chunks).astype(np.float32).tobytes()
+        return subprocess.run(
+            ["ffmpeg", "-nostdin", "-loglevel", "error", "-f", "f32le", "-ar", str(KOKORO_RATE), "-ac", "1", "-i", "pipe:0",
+             "-codec:a", "libmp3lame", "-b:a", "64k", "-f", "mp3", "pipe:1"],
+            input=pcm,
+            capture_output=True,
+            check=True,
+        ).stdout
+
+    @modal.asgi_app()
+    def web(self):
+        from fastapi import FastAPI, HTTPException, Request
+        from fastapi.responses import Response
+        from pydantic import BaseModel, Field
+
+        api = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+        token = os.environ["STT_TOKEN"]
+
+        class SpeakBody(BaseModel):
+            text: str = Field(min_length=1, max_length=MAX_CHARS)
+            speed: float = Field(default=KOKORO_SPEED, ge=0.5, le=1.5)
+
+        def check_auth(request: Request):
+            if request.headers.get("authorization") != f"Bearer {token}":
+                raise HTTPException(status_code=401, detail="unauthorized")
+
+        @api.get("/warm")
+        def warm(request: Request):
+            check_auth(request)
+            return {"ok": True}
+
+        @api.post("/speak")
+        def speak(body: SpeakBody, request: Request):
+            check_auth(request)
+            try:
+                mp3 = self.synthesize(body.text.strip(), body.speed)
+            except ValueError:
+                raise HTTPException(status_code=400, detail="nothing to say")
+            return Response(content=mp3, media_type="audio/mpeg")
 
         return api

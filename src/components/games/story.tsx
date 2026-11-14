@@ -11,6 +11,7 @@ import { Icon } from "@/components/icons";
 import { clay } from "@/components/kid/stage";
 import { cleanInterest, fillChild, INTEREST_MAX, INTEREST_MIN, LIBRARY_VARIANTS, libraryStory, mixChoices, type Story, storyFits, StoryShape, TOPICS } from "@/lib/games/story";
 import { hush, say } from "@/lib/speech/say";
+import { prefetchSpeech, warmVoice } from "@/lib/speech/voice";
 import { familyActions, type Kid } from "@/lib/store/family";
 import { BackButton, chunky, chunkyDark, GameDone, GameIntro, GameTop } from "./bits";
 import { TopicIcon } from "./story-icons";
@@ -62,6 +63,7 @@ export function StoryGame({ kid, onExit }: { kid: Kid; onExit: () => void }) {
   const later = (fn: () => void, ms: number) => timers.current.push(setTimeout(fn, ms));
   useEffect(() => {
     alive.current = true;
+    warmVoice();
     const pending = timers.current;
     return () => {
       alive.current = false;
@@ -95,7 +97,11 @@ export function StoryGame({ kid, onExit }: { kid: Kid; onExit: () => void }) {
     setWrong([]);
     setRight(false);
     setStage("read");
-    if (readAloud) say(`${made.title}. ${made.pages[0]}`);
+    if (readAloud) {
+      say(`${made.title}. ${made.pages[0]}`);
+      // The rest is fetched while the first page plays, so each tap speaks at once.
+      prefetchSpeech([...made.pages.slice(1), ...made.questions.map((q) => q.q)]);
+    }
   }
 
   function nextPage(made: Story) {
