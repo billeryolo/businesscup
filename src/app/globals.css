@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #fbf8f3;
+  --color-sheet: #ffffff;
+  --color-ink: #1f2933;
+  --color-ink-soft: #52606d;
+  --color-ink-faint: #9aa5b1;
+  --color-line: #e7e1d7;
+  --color-brand: #2f6f62;
+  --color-brand-deep: #245a4f;
+  --color-brand-soft: #e3f0ec;
+  --color-sun: #f6c453;
+  --color-sun-soft: #fdf1cf;
+  --color-good: #2e7d4f;
+  --color-good-soft: #e2f3e8;
+  --color-warn: #a86a12;
+  --color-warn-soft: #fbefd9;
+  --color-bad: #b83a2e;
+  --color-bad-soft: #f9e3e0;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-read: var(--font-lexend);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* The word being read gets a soft highlighter swipe. */
+.marker {
+  background-image: linear-gradient(transparent 55%, var(--color-sun) 55%, var(--color-sun) 92%, transparent 92%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pulse-dot {
+    animation: pulse-dot 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+  .word-in {
+    animation: word-in 180ms ease-out;
+  }
+  @keyframes word-in {
+    from { opacity: 0; transform: translateY(0.08em) scale(0.96); }
+    to { opacity: 1; transform: none; }
+  }
+}
