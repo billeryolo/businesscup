@@ -116,7 +116,7 @@ export function QuickCheck({ kind, kid, onResult }: { kind: QuickKind; kid: Kid;
           <span className="text-2xl font-semibold text-night tabular-nums">{index}</span> done
         </p>
         <div className="ml-auto">
-          <AvatarBubble animal={kid.avatar} size={60} mood={feedback === "right" ? "cheer" : "idle"} />
+          <AvatarBubble animal={kid.avatar} size={60} mood={feedback === "right" ? "cheer" : feedback === "wrong" ? "oops" : "idle"} />
         </div>
       </div>
 
