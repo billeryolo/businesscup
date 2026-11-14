@@ -7,6 +7,7 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Orb } from "@/components/assistant/orb";
 import { AnimalAvatar, AvatarBubble } from "@/components/avatars/animal";
 import { Icon, type IconName } from "@/components/icons";
 import { ScreenHeader, Stagger } from "@/components/app/screen";
@@ -98,13 +99,13 @@ function WeeklyCheck({ kid, latest }: { kid: Kid; latest: CheckRecord | undefine
 
 function AssistantCard({ text }: { text: string }) {
   return (
-    <Link href="/assistant" className="flex items-center gap-4 rounded-[28px] bg-space p-5 text-white">
-      <span className="assistant-orb grid h-12 w-12 flex-none place-items-center rounded-full" aria-hidden="true" />
+    <Link href="/assistant" className="flex items-center gap-4 rounded-[28px] bg-gradient-to-br from-white via-lilac-soft to-[#fbe3f6] p-5 shadow-[0_6px_20px_rgba(27,20,51,0.06)]">
+      <Orb size={46} />
       <span className="min-w-0">
-        <span className="block text-xs font-semibold uppercase tracking-widest text-white/60">Assistant</span>
+        <span className="block text-xs font-semibold uppercase tracking-widest text-night-soft">Assistant</span>
         <span className="mt-1 block text-[15px] leading-snug">{text}</span>
       </span>
-      <span className="ml-auto flex-none rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold">Open</span>
+      <span className="ml-auto flex-none rounded-full bg-night px-3.5 py-2 text-xs font-semibold text-white">Ask</span>
     </Link>
   );
 }
