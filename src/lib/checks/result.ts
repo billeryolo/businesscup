@@ -73,7 +73,7 @@ export function readingView(name: string, a: Assessment): ResultView {
 }
 
 export function quickView(name: string, grade: Grade, r: QuickResult): ResultView {
-  const { label, goal } = quickLevel(r.kind, grade);
+  const { label, goal, source } = quickLevel(r.kind, grade);
   const math = r.kind === "math";
   const thing = math ? "facts" : "letters";
   const reached = r.score >= goal;
@@ -98,7 +98,9 @@ export function quickView(name: string, grade: Grade, r: QuickResult): ResultVie
     target: goal,
     verdict: reached ? "onTrack" : "practice",
     headline: reached ? `${name} reached the goal for ${label}.` : `${name} is building up ${label}.`,
-    meaning: `${name} got ${r.correct} of ${r.attempted} right, which is ${r.score} ${thing} a minute. Our practice goal for ${gradeLabel(grade)} is ${goal}. ${
+    meaning: `${name} got ${r.correct} of ${r.attempted} right, which is ${r.score} ${thing} a minute. ${
+      source ? `The ${source} goal for ${gradeLabel(grade)} at this time of year is ${goal}.` : `Our practice goal for ${gradeLabel(grade)} is ${goal}.`
+    } ${
       reached ? "Keep the habit and check again in a month." : "A few minutes a day usually closes this gap within weeks."
     }`,
     bar: {
@@ -108,7 +110,9 @@ export function quickView(name: string, grade: Grade, r: QuickResult): ResultVie
         { to: Infinity, tone: "good" },
       ],
       ticks: [{ at: goal, label: "goal" }],
-      source: "Compared with this app's practice goal. There is no single national norm for this check.",
+      source: source
+        ? `Compared with the ${source} benchmark for ${gradeLabel(grade)} at this time of the school year.`
+        : "Compared with this app's practice goal. There is no published benchmark for this check at this age.",
     },
     noticed,
     plan: [

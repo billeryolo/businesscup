@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Grade } from "@/lib/store/family";
-import { checksFor, makeQuickItems, quickScore } from "./quick";
+import { checksFor, makeQuickItems, quickLevel, quickScore } from "./quick";
 
 function seeded(seed: number) {
   let a = seed;
@@ -41,6 +41,21 @@ describe("quick checks", () => {
     const k = makeQuickItems("letters", 0, seeded(2));
     expect(k.some((i) => /^[a-z]$/.test(i.prompt))).toBe(true);
     k.forEach((item, i) => i && expect(item.prompt).not.toBe(k[i - 1].prompt));
+  });
+
+  it("uses published goals where they exist, by time of the school year", () => {
+    const nov = new Date(2026, 10, 14);
+    const jan = new Date(2027, 0, 20);
+    expect(quickLevel("letters", 0, nov)).toMatchObject({ goal: 25, source: "DIBELS 8" });
+    expect(quickLevel("letters", 0, jan)).toMatchObject({ goal: 37, source: "DIBELS 8" });
+    expect(quickLevel("math", 1, nov)).toMatchObject({ goal: 12, source: "Rocket Math" });
+    expect(quickLevel("math", 2, jan)).toMatchObject({ goal: 21, source: "Rocket Math" });
+    expect(quickLevel("math", 4, nov)).toMatchObject({ goal: 35, source: "Rocket Math" });
+  });
+
+  it("keeps the app's own goal where nothing is published", () => {
+    expect(quickLevel("letters", -1)).toMatchObject({ goal: 13, source: null });
+    expect(quickLevel("math", 0)).toMatchObject({ goal: 8, source: null });
   });
 
   it("scales an early stop to a full minute", () => {

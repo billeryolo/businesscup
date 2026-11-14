@@ -38,7 +38,16 @@ export type AssessInput = {
 export function assess({ passage, spoken, seconds, grade, date, parentMarks }: AssessInput): Assessment {
   const raw = align(passage, spoken);
   const words = parentMarks?.size ? applyParentMarks(raw.words, raw.lastAttempted, parentMarks) : raw.words;
-  const alignment: Alignment = { ...raw, words };
+  return assessAligned({ passage, alignment: { ...raw, words }, seconds, grade, date });
+}
+
+/**
+ * The same rules for a reading that is already aligned word by word, e.g. by the speech service
+ * (src/lib/speech/merge.ts).
+ */
+export function assessAligned({ passage, alignment, seconds, grade, date }: { passage: PassageWord[]; alignment: Alignment; seconds: number; grade: Grade; date: Date }): Assessment {
+  const { words, lastAttempted } = alignment;
+  const raw = { lastAttempted };
   const score = scoreReading(words, raw.lastAttempted, seconds);
   const norms = normsFor(grade, seasonFor(date));
   const fluency = needsFluencyBuilding(score.wcpm, norms.values);

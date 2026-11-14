@@ -1,9 +1,12 @@
 // The two short checks for children who are not reading passages yet (and for math at any age):
 // facts answered in a minute, and letters named in a minute.
 //
-// There is no single national norm for either, so the score is compared with a practice goal
-// chosen for the app, and the screens say so. Only the reading check uses published norms.
+// Where a published benchmark exists, the goal comes from it and the screens name the source
+// (docs/BENCHMARKS.md): DIBELS 8 letter naming for kindergarten, Rocket Math fact fluency for
+// grades 1–4. Pre-K letters and kindergarten math have no published per-minute goal, so they keep
+// a practice goal chosen for the app, and the screens say so.
 
+import { seasonFor } from "@/lib/reading/norms";
 import type { CheckKind } from "@/lib/store/checks";
 import type { Grade } from "@/lib/store/family";
 
@@ -17,13 +20,40 @@ export function checksFor(grade: Grade): CheckKind[] {
   return ["reading", "math"];
 }
 
-export function quickLevel(kind: QuickKind, grade: Grade): { label: string; goal: number } {
-  if (kind === "letters") return grade === -1 ? { label: "capital letters", goal: 13 } : { label: "capital and small letters", goal: 26 };
-  if (grade <= 0) return { label: "adding up to 5", goal: 8 };
-  if (grade === 1) return { label: "adding up to 10", goal: 10 };
-  if (grade === 2) return { label: "adding and taking away up to 20", goal: 15 };
-  if (grade === 3) return { label: "times tables: 2, 3, 4, 5 and 10", goal: 15 };
-  return { label: "times tables up to 10", goal: 20 };
+export type QuickLevel = {
+  label: string;
+  /** Per minute, for this grade at this time of the school year. */
+  goal: number;
+  /** Where the goal comes from, e.g. "DIBELS 8"; null for the app's own practice goal. */
+  source: string | null;
+};
+
+type BySeason = { fall: number; winter: number; spring: number };
+
+/** DIBELS 8 Letter Naming Fluency, kindergarten, minimum for "core support" (goals updated July 2020). */
+const DIBELS_LNF_K: BySeason = { fall: 25, winter: 37, spring: 42 };
+
+/**
+ * Rocket Math fact fluency benchmarks (2024), written problems per minute, for the facts each
+ * grade's check uses. A check mixing two operations aims at their average.
+ */
+const ROCKET_MATH: Record<1 | 2 | 3 | 4, BySeason> = {
+  1: { fall: 12, winter: 25, spring: 25 }, // addition
+  2: { fall: 25, winter: 21, spring: 28 }, // addition, then addition and subtraction mixed
+  3: { fall: 30, winter: 30, spring: 30 }, // multiplication
+  4: { fall: 35, winter: 35, spring: 35 }, // multiplication
+};
+
+export function quickLevel(kind: QuickKind, grade: Grade, date: Date = new Date()): QuickLevel {
+  const season = seasonFor(date);
+  if (kind === "letters") {
+    if (grade === -1) return { label: "capital letters", goal: 13, source: null };
+    return { label: "capital and small letters", goal: grade === 0 ? DIBELS_LNF_K[season] : 26, source: grade === 0 ? "DIBELS 8" : null };
+  }
+  if (grade <= 0) return { label: "adding up to 5", goal: 8, source: null };
+  const goal = ROCKET_MATH[grade as 1 | 2 | 3 | 4][season];
+  const label = { 1: "adding up to 10", 2: "adding and taking away up to 20", 3: "times tables: 2, 3, 4, 5 and 10", 4: "times tables up to 10" }[grade as 1 | 2 | 3 | 4];
+  return { label, goal, source: "Rocket Math" };
 }
 
 type Rand = () => number;

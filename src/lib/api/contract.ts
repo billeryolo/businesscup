@@ -7,7 +7,7 @@
 
 import { z } from "zod";
 
-export const CONTRACT_VERSION = "1.0.0";
+export const CONTRACT_VERSION = "1.1.0";
 
 // ---------------------------------------------------------------------------------------------
 // Shared building blocks
@@ -285,6 +285,40 @@ export const LettersSubmission = z.object({
   /** The parent taps each letter right or wrong as the child names it. */
   items: z.array(z.object({ letter: z.string().length(1), correct: z.boolean() })).max(100),
 });
+
+// ---------------------------------------------------------------------------------------------
+// "The app listens": POST /api/transcribe (added in 1.1.0)
+// ---------------------------------------------------------------------------------------------
+// The request is multipart/form-data (audio, textId, seconds), so it isn't in the JSON endpoint
+// registry below: call it through `transcribeReading()` in src/lib/speech/client.ts. 503 means
+// "fall back to marking by hand". GET /api/transcribe wakes the speech service.
+
+/**
+ * One passage word after both speech models. "check" means they disagreed: the parent confirms it
+ * on the review screen (an unconfirmed check word counts as correct).
+ */
+export const HeardWord = z.object({
+  index: z.number().int().min(0),
+  status: z.enum(["correct", "misread", "skipped", "unreached", "check"]),
+  /** What wav2vec2 heard, for misread and check words. */
+  heard: z.string().optional(),
+  /** What Whisper heard, for check words. */
+  heardSecond: z.string().optional(),
+  /** Seconds since the reading started. */
+  t: z.number().optional(),
+});
+export type HeardWord = z.infer<typeof HeardWord>;
+
+export const TranscribeResponse = z.object({
+  words: z.array(HeardWord),
+  /** Index of the last passage word the child attempted, or -1. */
+  lastAttempted: z.number().int(),
+  /** Indices with status "check", for the review screen. */
+  toReview: z.array(z.number().int()),
+  /** How long the two models took. */
+  ms: z.number(),
+});
+export type TranscribeResponse = z.infer<typeof TranscribeResponse>;
 
 // ---------------------------------------------------------------------------------------------
 // Endpoint registry
