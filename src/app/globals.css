@@ -72,46 +72,82 @@ body {
 
 /* ---------- Mobile app ---------- */
 
-/* The centre button of the bottom bar: a small glowing planet. */
-.assistant-orb {
-  background: radial-gradient(circle at 32% 28%, #9fd0ff 0%, #4f7dff 38%, #2a2f9e 72%, #1b1433 100%);
-  box-shadow: 0 8px 22px rgba(79, 125, 255, 0.55), inset 0 0 14px rgba(255, 255, 255, 0.35);
-}
-
-/* The big orb on the assistant screen: three light ribbons turning around a dark sphere. */
-.orb {
+/* The assistant's pearl: a soft lilac sphere, lit from the top left like the avatars, with pink
+   and sky light turning slowly inside. Sized in em, so font-size sets the diameter. */
+.pearl {
   position: relative;
+  display: block;
+  flex: none;
+  width: 1em;
+  height: 1em;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #16327a 0%, #07113a 55%, #030716 100%);
-  box-shadow: 0 0 80px 10px rgba(64, 132, 255, 0.45), inset 0 0 40px rgba(90, 160, 255, 0.5);
+  isolation: isolate;
+  background: radial-gradient(circle at 30% 24%, #ffffff 0%, #ece8ff 16%, #c5bff5 44%, #9a88f2 76%, #7460dc 100%);
+  box-shadow:
+    0 0.16em 0.34em -0.1em rgba(116, 96, 220, 0.55),
+    0 0 0.46em rgba(242, 155, 227, 0.32),
+    inset 0 -0.09em 0.2em rgba(97, 79, 196, 0.38),
+    inset 0 0.05em 0.12em rgba(255, 255, 255, 0.8);
 }
-.orb::before,
-.orb::after,
-.orb > i {
+.pearl::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: -0.2em;
+  z-index: -1;
   border-radius: 50%;
-  border: 3px solid transparent;
-  border-top-color: #bfe1ff;
-  border-left-color: rgba(120, 180, 255, 0.55);
-  filter: drop-shadow(0 0 8px #6fb0ff) blur(0.4px);
+  background: radial-gradient(circle, rgba(197, 191, 245, 0.6) 30%, rgba(242, 155, 227, 0.18) 52%, transparent 70%);
 }
-.orb::after { inset: 6%; transform: rotate(120deg); }
-.orb > i { inset: 3%; transform: rotate(240deg) }
+.pearl-swirl {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 50%;
+}
+.pearl-swirl::before,
+.pearl-swirl::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(0.15em);
+}
+.pearl-swirl::before { left: 0.44em; top: 0.46em; width: 0.6em; height: 0.6em; background: #f29be3; opacity: 0.8; }
+.pearl-swirl::after { left: -0.08em; top: 0.52em; width: 0.5em; height: 0.5em; background: #8fd0ff; opacity: 0.75; }
+.pearl-shine {
+  position: absolute;
+  left: 0.17em;
+  top: 0.1em;
+  width: 0.36em;
+  height: 0.19em;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.8;
+  filter: blur(0.035em);
+  transform: rotate(-28deg);
+}
+/* The centre button of the bottom bar is the same pearl, a little deeper so the white spark reads. */
+.assistant-orb {
+  background:
+    radial-gradient(circle at 78% 84%, rgba(242, 155, 227, 0.95) 0%, rgba(242, 155, 227, 0) 52%),
+    radial-gradient(circle at 30% 24%, #ded7ff 0%, #a898f6 34%, #7f6be6 70%, #614fc4 100%);
+  box-shadow: 0 10px 22px -6px rgba(116, 96, 220, 0.7), inset 0 -5px 10px rgba(97, 79, 196, 0.45), inset 0 3px 7px rgba(255, 255, 255, 0.6);
+}
 
 @media (prefers-reduced-motion: no-preference) {
-  .assistant-orb { animation: orb-pulse 2.8s ease-in-out infinite; }
+  .assistant-orb { animation: orb-pulse 3.2s ease-in-out infinite; }
   @keyframes orb-pulse {
-    0%, 100% { box-shadow: 0 8px 22px rgba(79, 125, 255, 0.55), inset 0 0 14px rgba(255, 255, 255, 0.35); }
-    50% { box-shadow: 0 8px 32px 6px rgba(79, 125, 255, 0.75), inset 0 0 18px rgba(255, 255, 255, 0.5); }
+    0%, 100% { box-shadow: 0 10px 22px -6px rgba(116, 96, 220, 0.7), inset 0 -5px 10px rgba(97, 79, 196, 0.45), inset 0 3px 7px rgba(255, 255, 255, 0.6); }
+    50% { box-shadow: 0 10px 30px -2px rgba(242, 155, 227, 0.75), inset 0 -5px 10px rgba(97, 79, 196, 0.45), inset 0 3px 9px rgba(255, 255, 255, 0.75); }
   }
-  .orb { animation: orb-breathe 5s ease-in-out infinite; }
-  .orb::before { animation: orb-spin 7s linear infinite; }
-  .orb::after { animation: orb-spin 9s linear infinite reverse; }
-  .orb > i { animation: orb-spin 11s linear infinite; }
-  @keyframes orb-spin { to { rotate: 360deg; } }
-  @keyframes orb-breathe { 0%, 100% { scale: 1; } 50% { scale: 1.04; } }
+  .pearl { animation: pearl-float 5s ease-in-out infinite; }
+  .pearl::before { animation: pearl-halo 3.6s ease-in-out infinite; }
+  .pearl-swirl { animation: pearl-spin 10s linear infinite; }
+  .pearl[data-busy="true"] .pearl-swirl { animation-duration: 2.4s; }
+  .pearl[data-busy="true"]::before { animation-duration: 1.2s; }
+  @keyframes pearl-spin { to { rotate: 360deg; } }
+  @keyframes pearl-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -0.035em; } }
+  @keyframes pearl-halo { 0%, 100% { scale: 0.94; opacity: 0.7; } 50% { scale: 1.08; opacity: 1; } }
+  .aurora { animation: aurora 16s ease-in-out infinite alternate; }
+  @keyframes aurora { from { translate: -18px -10px; scale: 1; } to { translate: 22px 16px; scale: 1.12; } }
 
   .cloud-drift { animation: cloud-drift 26s ease-in-out infinite alternate; }
   @keyframes cloud-drift { from { translate: -14px 0; } to { translate: 18px 0; } }
