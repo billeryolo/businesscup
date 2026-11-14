@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AnimalBuddy } from "@/components/avatars/buddy";
 import { Icon } from "@/components/icons";
-import { KidStage } from "@/components/kid/stage";
+import { clay, KidStage } from "@/components/kid/stage";
 import { todayFor } from "@/lib/plan/today";
 import { useFamily } from "@/lib/store/family";
 
@@ -41,7 +41,7 @@ function ParentGate({ onOpen }: { onOpen: () => void }) {
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && !e.repeat && start()}
       onKeyUp={stop}
       aria-label="Parent: hold for 3 seconds to leave kid mode"
-      className="flex touch-none select-none items-center gap-2 rounded-full bg-white/70 py-1.5 pl-1.5 pr-3.5 text-sm font-semibold text-night/70"
+      className="flex touch-none select-none items-center gap-2 rounded-full bg-white/85 py-1.5 pl-1.5 pr-3.5 text-sm font-medium text-night/70 shadow-[0_6px_14px_-6px_rgba(27,20,51,0.25)]"
     >
       <svg viewBox="0 0 36 36" className="h-8 w-8 -rotate-90">
         <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(27,20,51,0.12)" strokeWidth="4" />
@@ -90,7 +90,7 @@ export default function PlayPage() {
     <KidStage>
         <div className="relative flex items-center justify-between">
           <ParentGate onOpen={() => router.push("/home")} />
-          <motion.div key={kid.stars} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-2 text-lg font-semibold">
+          <motion.div key={kid.stars} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="flex items-center gap-1.5 rounded-full bg-white/85 px-4 py-2 text-lg font-semibold shadow-[0_6px_14px_-6px_rgba(27,20,51,0.25)]">
             <Icon name="star" size={24} /> {kid.stars}
           </motion.div>
         </div>
@@ -104,7 +104,7 @@ export default function PlayPage() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ type: "spring", stiffness: 320, damping: 22 }}
-              className="relative max-w-[280px] rounded-[26px] bg-white px-5 py-3 text-center text-[22px] font-semibold leading-tight shadow-[0_8px_20px_rgba(27,20,51,0.1)]"
+              className="relative max-w-[280px] rounded-[26px] bg-white px-5 py-3 text-center text-[21px] font-medium leading-tight shadow-[0_12px_24px_-8px_rgba(27,20,51,0.22)]"
               aria-live="polite"
             >
               {bubble}
@@ -126,7 +126,7 @@ export default function PlayPage() {
           </motion.button>
         </div>
 
-        <p className="relative mt-6 text-center text-lg font-semibold text-night/70">Today’s games</p>
+        <p className="relative mt-7 text-center text-[13px] font-semibold uppercase tracking-[0.18em] text-night/55">Today’s games</p>
         <div className="relative mt-3 grid grid-cols-3 gap-3">
           {games.map((g, i) => (
             <motion.button
@@ -137,18 +137,20 @@ export default function PlayPage() {
               transition={{ type: "spring", stiffness: 220, damping: 16, delay: 0.25 + i * 0.1 }}
               whileTap={{ scale: 0.9, rotate: -3 }}
               onClick={() => (g.ready ? router.push(`/play/${g.id}`) : react(`${g.title} is coming soon!`))}
-              className={`grid aspect-[4/5] content-center justify-items-center gap-2 rounded-[28px] p-2 shadow-[0_8px_0_rgba(27,20,51,0.12)] ${g.tone}`}
+              className={`grid aspect-[4/5] content-center justify-items-center gap-2.5 rounded-[30px] bg-gradient-to-b from-white/55 to-white/0 p-2 ${clay} ${g.tone}`}
             >
               <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: i * 0.35 }}>
-                <Icon name={g.icon} size={52} />
+                <span className="grid h-[68px] w-[68px] place-items-center rounded-full bg-white/55 shadow-[inset_0_-3px_0_rgba(27,20,51,0.05)]">
+                  <Icon name={g.icon} size={44} />
+                </span>
               </motion.span>
-              <span className="text-center text-[15px] font-semibold leading-tight">{g.title}</span>
+              <span className="text-center text-[15px] font-medium leading-tight tracking-[0.01em]">{g.title}</span>
             </motion.button>
           ))}
         </div>
 
         <motion.div whileTap={{ scale: 0.96 }} className="relative mt-auto pt-8">
-          <Link href="/assistant" className="flex h-16 items-center justify-center gap-3 rounded-full bg-white text-xl font-semibold shadow-[0_8px_0_rgba(27,20,51,0.12)]">
+          <Link href="/assistant" className={`flex h-[68px] items-center justify-center gap-3 rounded-full bg-white text-xl font-medium ${clay}`}>
             <span className="assistant-orb h-9 w-9 rounded-full" aria-hidden="true" /> Talk to Buddy
           </Link>
         </motion.div>
