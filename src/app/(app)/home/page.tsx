@@ -53,7 +53,7 @@ function Today({ kid }: { kid: Kid }) {
           <Icon name="play" size={18} /> Play with {kid.name}
         </Link>
       </motion.div>
-      <p className="mt-2.5 text-center text-xs text-night/60">Opens kid mode. Hand the phone over.</p>
+      <p className="mt-2.5 text-center text-xs text-night/60">Opens kid mode. Sit with them while they play.</p>
     </div>
   );
 }
