@@ -16,6 +16,7 @@ import { chatActions } from "@/lib/store/assistant";
 import { checkActions, useAllChecks } from "@/lib/store/checks";
 import { familyActions, gradeLabel, type Kid, MAX_KIDS, minutesFor, useFamily } from "@/lib/store/family";
 import { settingsActions, useSettings } from "@/lib/store/settings";
+import { PRICES, useTrial } from "@/lib/plus";
 
 const card = "rounded-[28px] bg-white p-5 shadow-[0_6px_20px_rgba(27,20,51,0.06)]";
 const label = "text-xs font-semibold uppercase tracking-widest text-night-soft";
@@ -173,6 +174,8 @@ export default function FamilyPage() {
           )}
         </div>
 
+        <PlusCard />
+
         <div className={card}>
           <p className={label}>Settings</p>
           <div className="mt-3 flex items-center gap-4">
@@ -230,5 +233,23 @@ export default function FamilyPage() {
 
       <AnimatePresence>{edited && <EditSheet key={edited.id} kid={edited} onClose={() => setEditing(null)} />}</AnimatePresence>
     </>
+  );
+}
+
+function PlusCard() {
+  const trial = useTrial();
+  return (
+    <Link href="/plans" className={`${card} flex items-center gap-4 bg-gradient-to-br from-white via-lilac-soft to-[#fbe3f6]`}>
+      <span className="grid h-12 w-12 flex-none place-items-center rounded-2xl bg-white/80">
+        <Icon name="star" size={28} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[15px] font-semibold">ReadBuddy Plus</span>
+        <span className="block text-sm text-night-soft">
+          {trial ? "Your 7 free days have started" : `7 days free, then ${PRICES.yearly.price} ${PRICES.yearly.per} or ${PRICES.monthly.price} ${PRICES.monthly.per}`}
+        </span>
+      </span>
+      <Chevron />
+    </Link>
   );
 }
