@@ -38,4 +38,5 @@ export function makeLetterRound(grade: Grade, rand: () => number = Math.random, 
 }
 
 /** What the phone says for a letter. */
-export const letterLine = (item: LetterItem) => `${item.letter}. ${item.letter} is for ${item.word}.`;
+// Said once, slowly (the clips are made at a slower speed in speech/make_clips.py).
+export const letterLine = (item: LetterItem) => `${item.letter} is for ${item.word}.`;
