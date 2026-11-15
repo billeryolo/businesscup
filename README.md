@@ -30,7 +30,15 @@ that works at home.
    AI-written story about what the child loves) in ReadBuddy's own voice.
 5. **A report for the teacher.** One page: scores against named benchmarks, growth, practice days
    and questions to ask. Print, save as PDF or share as text.
-6. **A parent assistant** that answers from the child's real numbers.
+6. **A parent assistant** that answers from the child's real numbers, by text or voice, and acts:
+   it saves notes to the child's diary, logs reading time, proposes a shorter or longer daily
+   practice (Apply / Not now / Undo), shows a mini chart, opens the right game or the teacher
+   report.
+7. **Buddy, the child's assistant** in kid mode: stories, star counts and games, spoken aloud.
+   Safe by design: a child's words never go to an AI, and Buddy can't change anything.
+8. **ReadBuddy Plus:** the check and its result are free; the path, games, voice, progress,
+   report and assistant are $99 a year or $14.99 a month after a 7-day free trial (nothing is
+   charged during the beta).
 
 ## Why the results can be trusted
 
@@ -72,6 +80,8 @@ reading by hand.
 | ReadBuddy's voice: pre-made clips, live voice, phone fallback | [`src/lib/speech/voice.ts`](src/lib/speech/voice.ts), [`src/app/api/speak/route.ts`](src/app/api/speak/route.ts) |
 | 4-week path, streak, calendar | [`src/lib/roadmap.ts`](src/lib/roadmap.ts), [`src/components/home/roadmap.tsx`](src/components/home/roadmap.tsx) |
 | Teacher report | [`src/lib/report.ts`](src/lib/report.ts), [`src/app/report/page.tsx`](src/app/report/page.tsx) |
+| Assistant actions and diary; Buddy | [`src/lib/assistant/actions.ts`](src/lib/assistant/actions.ts), [`src/lib/store/diary.ts`](src/lib/store/diary.ts), [`src/lib/buddy.ts`](src/lib/buddy.ts) |
+| Plans and free trial | [`src/lib/plus.ts`](src/lib/plus.ts), [`src/app/plans/page.tsx`](src/app/plans/page.tsx) |
 | Progress over time | [`src/lib/progress/`](src/lib/progress/), [`src/lib/progress.ts`](src/lib/progress.ts) |
 | AI: DeepSeek, Claude fallback, rules | [`src/lib/ai/`](src/lib/ai/) |
 | API contract between screens and backend | [`src/lib/api/contract.ts`](src/lib/api/contract.ts) |
@@ -82,7 +92,7 @@ reading by hand.
 ```bash
 npm install
 npm run dev        # http://localhost:3000
-npm test           # 90 tests: scoring, norms, speech merge, path, report, games, contract
+npm test           # 101 tests: scoring, norms, speech merge, path, report, games, contract
 npm run build
 ```
 
