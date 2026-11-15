@@ -89,7 +89,13 @@ export function StoryGame({ kid, onExit }: { kid: Kid; onExit: () => void }) {
     setAbout(interest);
     setStage("making");
     say(`A story about ${interest}!`);
-    const [made] = await Promise.all([getStory(interest, kid), wait(1600)]);
+    // As soon as the story arrives, fetch its voice while the "making" animation still plays,
+    // so the first page speaks the moment it shows and every later tap speaks at once.
+    const story = getStory(interest, kid).then((s) => {
+      if (readAloud) prefetchSpeech([`${s.title}. ${s.pages[0]}`, ...s.pages.slice(1), ...s.questions.map((q) => q.q)]);
+      return s;
+    });
+    const [made] = await Promise.all([story, wait(1600)]);
     if (!alive.current) return;
     setStory(made);
     setPage(0);
@@ -97,11 +103,7 @@ export function StoryGame({ kid, onExit }: { kid: Kid; onExit: () => void }) {
     setWrong([]);
     setRight(false);
     setStage("read");
-    if (readAloud) {
-      say(`${made.title}. ${made.pages[0]}`);
-      // The rest is fetched while the first page plays, so each tap speaks at once.
-      prefetchSpeech([...made.pages.slice(1), ...made.questions.map((q) => q.q)]);
-    }
+    if (readAloud) say(`${made.title}. ${made.pages[0]}`);
   }
 
   function nextPage(made: Story) {

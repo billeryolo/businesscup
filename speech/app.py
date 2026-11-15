@@ -4,7 +4,7 @@ Speech: wav2vec2 + Whisper on one GPU. One recording in, two transcripts with wo
 The Next.js route /api/transcribe aligns both against the passage and decides each word
 (src/lib/speech/merge.ts).
 
-Voice: Kokoro-82M text-to-speech on CPU (see the Voice class at the end). Text in, mp3 out, for
+Voice: Kokoro-82M text-to-speech on a GPU (see the Voice class at the end). Text in, mp3 out, for
 /api/speak and for the pre-made game clips (speech/make_clips.py).
 
 - wav2vec2-large has no language model, so it writes what it hears ("hose" for "horse"):
@@ -178,7 +178,7 @@ class Speech:
 
 
 # ---------------------------------------------------------------------------------------------
-# Voice: Kokoro-82M text-to-speech (Apache 2.0), on CPU
+# Voice: Kokoro-82M text-to-speech (Apache 2.0), on a GPU (about 2.5 s a line on CPU was too slow)
 # ---------------------------------------------------------------------------------------------
 
 KOKORO_VOICE = "af_heart"  # a warm American English voice
@@ -206,8 +206,7 @@ voice_image = (
 
 @app.cls(
     image=voice_image,
-    cpu=2.0,
-    memory=2048,
+    gpu="T4",
     timeout=120,
     scaledown_window=300,
     min_containers=int(os.environ.get("MIN_CONTAINERS", "0")),
@@ -218,7 +217,13 @@ class Voice:
     def load(self):
         from kokoro import KPipeline
 
-        self.pipe = KPipeline(lang_code="a", repo_id="hexgrad/Kokoro-82M")
+        import torch
+
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.pipe = KPipeline(lang_code="a", repo_id="hexgrad/Kokoro-82M", device=self.device)
+        # The first line is always slow (kernels load); say something before any request comes in.
+        for _ in self.pipe("Ready.", voice=KOKORO_VOICE):
+            pass
 
     def synthesize(self, text: str, speed: float) -> bytes:
         import numpy as np
@@ -260,10 +265,12 @@ class Voice:
         @api.post("/speak")
         def speak(body: SpeakBody, request: Request):
             check_auth(request)
+            started = time.perf_counter()
             try:
                 mp3 = self.synthesize(body.text.strip(), body.speed)
             except ValueError:
                 raise HTTPException(status_code=400, detail="nothing to say")
-            return Response(content=mp3, media_type="audio/mpeg")
+            ms = round((time.perf_counter() - started) * 1000)
+            return Response(content=mp3, media_type="audio/mpeg", headers={"x-synth-ms": str(ms), "x-device": self.device})
 
         return api
