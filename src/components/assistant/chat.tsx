@@ -11,6 +11,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { AvatarBubble } from "@/components/avatars/animal";
 import { Icon } from "@/components/icons";
 import { type ChatMessage, factsFor, hideName, rulesReply, showName, suggestionsFor } from "@/lib/assistant/chat";
+import { useDictation } from "@/lib/speech/dictation";
+import { say } from "@/lib/speech/say";
 import { chatActions, useChat } from "@/lib/store/assistant";
 import { type CheckRecord, useChecks } from "@/lib/store/checks";
 import { type Kid, useFamily } from "@/lib/store/family";
@@ -104,6 +106,12 @@ const Back = () => (
     <path d="M14.5 5.500 8 12l6.500 6.500" />
   </svg>
 );
+const Mic = () => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="3.500" width="6" height="11" rx="3" />
+    <path d="M5.500 11.500a6.500 6.500 0 0 0 13 0M12 18v3" />
+  </svg>
+);
 const Arrow = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 19V5.500M6 11l6-6 6 6" />
@@ -126,7 +134,7 @@ export function AssistantChat() {
   }, [messages, draft]);
   useEffect(() => () => control.current?.abort(), []);
 
-  const send = async (raw: string) => {
+  const send = async (raw: string, aloud = false) => {
     const text = raw.trim();
     if (!text || busy || !active) return;
     const history: ChatMessage[] = [...messages, { role: "user", text }];
@@ -141,9 +149,14 @@ export function AssistantChat() {
       setDraft(shown(reply, active.name));
     }
     if (mine.signal.aborted) return;
-    chatActions.set(active.id, [...history, { role: "assistant", text: showName(reply, active.name).trim() }]);
+    const final = showName(reply, active.name).trim();
+    chatActions.set(active.id, [...history, { role: "assistant", text: final }]);
     setDraft(null);
+    if (aloud) say(final.replace(/^\s*[-•]\s+/gm, ""));
   };
+
+  // Hold to talk: the question is sent on release and the answer is read aloud.
+  const dictation = useDictation((spoken) => send(spoken, true));
 
   const startOver = () => {
     control.current?.abort();
@@ -253,11 +266,29 @@ export function AssistantChat() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 maxLength={500}
-                placeholder={`Ask about ${active.name}…`}
+                placeholder={dictation.listening ? dictation.heard || "Listening… release to send" : `Ask about ${active.name}…`}
                 aria-label="Your question"
                 enterKeyHint="send"
                 className="min-w-0 flex-1 bg-transparent py-2 text-[15px] outline-none placeholder:text-night-soft/70"
               />
+              {dictation.supported && !input.trim() ? (
+                <motion.button
+                  type="button"
+                  aria-label={dictation.listening ? "Listening: release to send" : "Hold to talk"}
+                  disabled={busy}
+                  whileTap={{ scale: 0.9 }}
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    dictation.start();
+                  }}
+                  onPointerUp={dictation.stop}
+                  onPointerLeave={() => dictation.listening && dictation.stop()}
+                  onContextMenu={(e) => e.preventDefault()}
+                  className={`grid h-11 w-11 flex-none touch-none select-none place-items-center rounded-full transition-colors disabled:opacity-30 ${dictation.listening ? "bg-candy text-night" : "bg-lilac-soft text-night"}`}
+                >
+                  <Mic />
+                </motion.button>
+              ) : null}
               <motion.button
                 type="submit"
                 aria-label="Send"

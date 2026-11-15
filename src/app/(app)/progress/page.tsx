@@ -13,6 +13,7 @@ import { Icon, type IconName } from "@/components/icons";
 import { ScreenHeader, Stagger } from "@/components/app/screen";
 import { VERDICT_LABEL } from "@/lib/checks/result";
 import { changeText, curve, place, type Trend, trendFor } from "@/lib/progress/trend";
+import { progressFor } from "@/lib/progress";
 import { type CheckKind, type CheckRecord, useChecks } from "@/lib/store/checks";
 import { familyActions, gradeLabel, type Kid, useFamily } from "@/lib/store/family";
 
@@ -28,7 +29,13 @@ const day = (iso: string) => new Date(iso).toLocaleDateString("en", { month: "sh
 
 function Chart({ trend }: { trend: Trend }) {
   const id = useId();
-  const { dots, goalY, floor } = place(trend.points.map((p) => p.score), trend.target, BOX);
+  // "If you keep this pace": one step past the last check, four weeks out, drawn dashed.
+  const ahead = paceFor(trend);
+  const scores = trend.points.map((p) => p.score);
+  const placed = place(ahead ? [...scores, ahead.score] : scores, trend.target, BOX);
+  const dots = ahead ? placed.dots.slice(0, -1) : placed.dots;
+  const next = ahead ? placed.dots[placed.dots.length - 1] : null;
+  const { goalY, floor } = placed;
   const line = curve(dots);
   const last = dots[dots.length - 1];
   const labels = dots.length <= 4 ? dots.map((_, i) => i) : [0, dots.length - 1];
@@ -50,6 +57,15 @@ function Chart({ trend }: { trend: Trend }) {
       <text x={BOX.width - BOX.right} y={goalY - 6} textAnchor="end" fontSize="10.5" fontWeight="600" fill="#6b6585">
         Goal {trend.target}
       </text>
+      {next && (
+        <g>
+          <line x1={dots[dots.length - 1].x} y1={dots[dots.length - 1].y} x2={next.x} y2={next.y} stroke="#7b67e0" strokeOpacity="0.55" strokeWidth="2.5" strokeDasharray="4 6" strokeLinecap="round" />
+          <circle cx={next.x} cy={next.y} r="4.5" fill="#fff" stroke="#9a88f2" strokeWidth="2" strokeDasharray="2 2" />
+          <text x={next.x} y={next.y - 9} textAnchor="end" fontSize="10.5" fontWeight="600" fill="#6b6585">
+            ~{ahead!.score}
+          </text>
+        </g>
+      )}
       {dots.length > 1 && (
         <>
           <motion.path d={`${line} L${last.x} ${floor} L${dots[0].x} ${floor} Z`} fill={`url(#${id}-fill)`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.6 }} />
@@ -102,6 +118,7 @@ function TrendCard({ kid, kind, trend }: { kid: Kid; kind: (typeof KINDS)[number
         <span className="pb-1 text-sm text-night-soft">{kind.unit}</span>
       </div>
       <p className="mt-1.5 text-sm font-medium">{changeText(trend)}</p>
+      <PaceLine trend={trend} unit={kind.unit} />
       <Chart trend={trend} />
       <div className="mt-3 grid grid-cols-3 gap-2 text-center">
         {[
@@ -253,5 +270,32 @@ export default function ProgressPage() {
         </motion.div>
       </div>
     </Stagger>
+  );
+}
+
+const DAY_MS = 86_400_000;
+
+/** Where the line points four weeks after the last check, at the pace so far. Needs 2+ checks. */
+function paceFor(trend: Trend): { score: number; at: string } | null {
+  if (trend.points.length < 2) return null;
+  return progressFor(trend.points, trend.latest.kind).projection?.[1] ?? null;
+}
+
+function PaceLine({ trend, unit }: { trend: Trend; unit: string }) {
+  const ahead = paceFor(trend);
+  // Calendar days, not hours: a check due tonight is "today".
+  const [now] = useState(() => Date.now());
+  const day = (t: number) => {
+    const d = new Date(t);
+    return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY_MS;
+  };
+  const days = day(new Date(trend.latest.at).getTime() + 7 * DAY_MS) - day(now);
+  const next = days <= 0 ? "Next check: today" : days === 1 ? "Next check: tomorrow" : `Next check in ${days} days`;
+  const by = ahead ? new Date(ahead.at).toLocaleDateString("en", { month: "short", day: "numeric" }) : "";
+  return (
+    <p className="mt-0.5 text-xs text-night-soft">
+      {ahead ? `If you keep this pace: about ${ahead.score} ${unit} by ${by}. ` : ""}
+      {next}.
+    </p>
   );
 }
