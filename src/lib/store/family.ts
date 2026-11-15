@@ -7,6 +7,7 @@ import { useSyncExternalStore } from "react";
 import { checkActions } from "./checks";
 import { demoChecks } from "./demo-checks";
 import { createLocalStore } from "./local";
+import { dayKey, streakFrom } from "@/lib/roadmap";
 
 export type AnimalId = "lion" | "koala" | "monkey" | "bear" | "bunny" | "fox";
 export const ANIMALS: AnimalId[] = ["lion", "koala", "monkey", "bear", "bunny", "fox"];
@@ -21,7 +22,10 @@ export type Kid = {
   grade: Grade;
   avatar: AnimalId;
   stars: number;
+  /** Days in a row; worked out from `practiced` when there is one (see useFamily). */
   streakDays: number;
+  /** Days with any practice, "YYYY-MM-DD" on this phone's calendar. Drives the streak and the path. */
+  practiced?: string[];
 };
 
 export type Family = {
@@ -65,7 +69,16 @@ export const familyActions = {
   },
   updateKid(id: string, patch: Partial<Omit<Kid, "id">>) {
     const family = read();
-    write({ ...family, kids: family.kids.map((k) => (k.id === id ? { ...k, ...patch } : k)) });
+    write({
+      ...family,
+      kids: family.kids.map((k) => {
+        if (k.id !== id) return k;
+        const next = { ...k, ...patch };
+        // Earning stars in a game counts as practice today: it moves the streak and the path.
+        if (patch.stars !== undefined && patch.stars > k.stars) next.practiced = markToday(k.practiced);
+        return next;
+      }),
+    });
   },
   removeKid(id: string) {
     const family = read();
@@ -76,7 +89,11 @@ export const familyActions = {
     write({ ...read(), activeId: id });
   },
   loadDemoFamily() {
-    write(demoFamily);
+    const now = new Date();
+    // Mia practised the last four days and the first two days of her path; Leo the last two.
+    const ago = (...days: number[]) => days.map((d) => dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - d)));
+    const practiced: Record<string, string[]> = { "demo-mia": ago(1, 2, 3, 5, 6), "demo-leo": ago(1, 2) };
+    write({ ...demoFamily, kids: demoFamily.kids.map((k) => ({ ...k, practiced: practiced[k.id] })) });
     // A few weeks of past checks, so Home and Progress show growth straight away.
     checkActions.replaceAll(demoChecks(new Date(), { mia: "demo-mia", leo: "demo-leo" }));
   },
@@ -89,9 +106,17 @@ export const familyActions = {
  * `ready` is false on the server and during hydration, so screens can show a calm placeholder
  * instead of flashing the empty state.
  */
+function markToday(practiced: string[] = []): string[] {
+  const today = dayKey(new Date());
+  return practiced.includes(today) ? practiced : [...practiced.slice(-59), today];
+}
+
+/** The streak as of today: it drops to 0 after a missed day, not only when a game is played. */
+const withLiveStreak = (k: Kid): Kid => (k.practiced ? { ...k, streakDays: streakFrom(k.practiced, new Date()) } : k);
+
 export function useFamily() {
   const family = useSyncExternalStore(store.subscribe, store.read, () => null);
-  const kids = family?.kids ?? [];
+  const kids = (family?.kids ?? []).map(withLiveStreak);
   const active = kids.find((k) => k.id === family?.activeId) ?? kids[0] ?? null;
   return { ready: family !== null, onboarded: family?.onboarded ?? false, kids, active };
 }

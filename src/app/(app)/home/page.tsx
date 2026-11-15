@@ -15,6 +15,7 @@ import { VERDICT_LABEL } from "@/lib/checks/result";
 import { assistantNote, todayFor } from "@/lib/plan/today";
 import { type CheckRecord, useChecks } from "@/lib/store/checks";
 import { familyActions, gradeLabel, type Kid, MAX_KIDS, minutesFor, useFamily } from "@/lib/store/family";
+import { RoadmapCard } from "@/components/home/roadmap";
 
 const card = "rounded-[28px] bg-white p-5 shadow-[0_6px_20px_rgba(27,20,51,0.06)]";
 const UNIT = { reading: "words a minute", math: "facts a minute", letters: "letters a minute" } as const;
@@ -144,6 +145,7 @@ export default function HomePage() {
         ) : null}
       </div>
 
+      <RoadmapCard kid={active} checks={checks} />
       <Today key={active.id} kid={active} />
 
       <div className="grid grid-cols-2 gap-3">
