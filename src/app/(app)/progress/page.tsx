@@ -140,6 +140,7 @@ function TrendCard({ kid, kind, trend }: { kid: Kid; kind: (typeof KINDS)[number
 function History({ checks }: { checks: CheckRecord[] }) {
   const [all, setAll] = useState(false);
   const [confirming, setConfirming] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
   const shown = all ? checks : checks.slice(0, 5);
   return (
     <div className={card}>
@@ -148,18 +149,19 @@ function History({ checks }: { checks: CheckRecord[] }) {
         {shown.map((c) => {
           const kind = KINDS.find((k) => k.kind === c.kind)!;
           return (
-            <li key={c.id} className="flex items-center gap-3 py-3">
+            <li key={c.id} className="py-3">
+             <div className="flex items-center gap-3">
               <span className={`grid h-10 w-10 flex-none place-items-center rounded-xl ${kind.tone}`}>
                 <Icon name={kind.icon} size={22} />
               </span>
-              <span className="min-w-0">
+              <button type="button" onClick={() => setOpen(open === c.id ? null : c.id)} aria-expanded={open === c.id} className="min-w-0 text-left">
                 <span className="block text-[15px] font-medium leading-tight">
                   {c.score} {kind.unit}
                 </span>
                 <span className="text-xs text-night-soft">
                   {kind.label} · {day(c.at)} · {Math.round(c.accuracy * 100)}% correct
                 </span>
-              </span>
+              </button>
               <span className={`ml-auto h-2.5 w-2.5 flex-none rounded-full ${VERDICT_TONE[c.verdict]}`} title={VERDICT_LABEL[c.verdict]} />
               {confirming === c.id ? (
                 <span className="flex flex-none gap-1.5">
@@ -175,6 +177,18 @@ function History({ checks }: { checks: CheckRecord[] }) {
                   Delete
                 </button>
               )}
+             </div>
+              {open === c.id ? (
+                <div className="mt-2 rounded-2xl bg-mist p-3.5 text-sm leading-snug">
+                  <p>
+                    <b>{VERDICT_LABEL[c.verdict]}.</b> {c.score} {kind.unit} against {c.kind === "reading" ? "a typical" : "a goal of"} {c.target} for the grade at that time of year, {Math.round(c.accuracy * 100)}% correct.
+                  </p>
+                  <p className="mt-1 text-night-soft">{VERDICT_MEANING[c.verdict]}</p>
+                  <Link href="/report" className="mt-2 inline-block text-xs font-semibold underline underline-offset-4">
+                    Report for the teacher →
+                  </Link>
+                </div>
+              ) : null}
             </li>
           );
         })}
@@ -343,3 +357,9 @@ function Diary({ kidId, name }: { kidId: string; name: string }) {
     </div>
   );
 }
+
+const VERDICT_MEANING = {
+  onTrack: "Right where children of this grade usually are at this time of year. Keep the daily practice going.",
+  practice: "A little behind for the grade. A few minutes of daily practice usually closes this within weeks; check again next week.",
+  talkToTeacher: "Further behind than usual. Worth showing the teacher: the one-page report has everything they need. This is a screening, not a diagnosis.",
+} as const;
