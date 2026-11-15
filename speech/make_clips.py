@@ -44,7 +44,7 @@ def game_lines() -> list[str]:
 
     lines = []
     for letter, word in letter_words.items():
-        lines.append(f"{letter}. {letter} is for {word}.")  # letterLine() in hear-a-letter.ts
+        lines.append(f"{letter} is for {word}.")  # letterLine() in hear-a-letter.ts
         lines.append(f"Yes! {letter}!")  # the cheer in hear-a-letter.tsx
     lines += big  # each Big word, said whole
     lines.append("Voice is on")  # the Family tab, when the voice is switched on
@@ -52,6 +52,11 @@ def game_lines() -> list[str]:
     for interest in re.findall(r'interest: "([^"]+)"', story_src):
         lines.append(f"A story about {interest}!")  # story.tsx, while a picked-topic story is made
     return lines
+
+
+# Letter lines are said slower, so a young child hears the letter clearly.
+LETTER_LINE = re.compile(r"^[A-Z] is for \w+\.$")
+SLOW = 0.75
 
 
 def clip_name(text: str) -> str:
@@ -77,7 +82,7 @@ def main() -> None:
         if force or not path.exists():
             req = urllib.request.Request(
                 f"{url}/speak",
-                data=json.dumps({"text": text}).encode(),
+                data=json.dumps({"text": text, **({"speed": SLOW} if LETTER_LINE.match(text) else {})}).encode(),
                 headers={"authorization": f"Bearer {token}", "content-type": "application/json"},
             )
             with urllib.request.urlopen(req, timeout=300) as res:
