@@ -2,6 +2,10 @@
 
 // The 1-minute reading check. Either the app listens and follows along, or the parent listens and
 // taps the words read wrong. Afterwards the parent can fix any word before seeing the result.
+//
+// When the app listens, the browser's recognizer follows the child live, and the minute is also
+// recorded. At the end the recording goes to the speech service (wav2vec2 + Whisper), which decides
+// each word and flags the ones it isn't sure about. If it can't answer, the live result is used.
 
 import { SlidingPill } from "@/components/app/sliding-pill";
 import { motion } from "motion/react";
@@ -13,6 +17,9 @@ import type { Grade } from "@/lib/reading/norms";
 import { isTooShort } from "@/lib/reading/score";
 import { DEMO_PROFILES } from "@/lib/reading/simulate";
 import type { PassageWord } from "@/lib/reading/text";
+import type { TranscribeResponse } from "@/lib/api/contract";
+import { type Recording, recordingSupported, startRecording, transcribeReading, warmSpeech } from "@/lib/speech/client";
+import { assessHeard } from "@/lib/speech/merge";
 import { useDemoReader } from "@/lib/speech/use-demo-reader";
 import { useSpeechRecognition, useSpeechSupported } from "@/lib/speech/use-speech-recognition";
 import { BigButton, TimerRing } from "./bits";
@@ -22,6 +29,8 @@ type Mode = "live" | "manual" | "demo";
 
 type Props = {
   passage: PassageWord[];
+  /** The passage's id, so the recording can be scored by the speech service. */
+  passageId?: string;
   title: string;
   kidName: string;
   grade: Grade;
@@ -46,19 +55,29 @@ const NOTHING_HEARD: SpokenWord[] = [];
 
 type Done = { spoken: SpokenWord[]; seconds: number; at: Date };
 
-function Run({ passage, title, kidName, grade, mode, supported, onMode, onRestart, onResult }: Props & { mode: Mode; supported: boolean; onMode: (m: Mode) => void; onRestart: () => void }) {
+function Run({ passage, passageId, title, kidName, grade, mode, supported, onMode, onRestart, onResult }: Props & { mode: Mode; supported: boolean; onMode: (m: Mode) => void; onRestart: () => void }) {
   const shownModes = MODES.filter((m) => m.mode !== "live" || supported);
   const speech = useSpeechRecognition();
   const demo = useDemoReader(passage, DEMO_PROFILES.guesser);
   const source = mode === "demo" ? demo : speech;
   const spoken = mode === "manual" ? NOTHING_HEARD : source.words;
 
-  const [phase, setPhase] = useState<"ready" | "reading" | "pickLast" | "review">("ready");
+  const [phase, setPhase] = useState<"ready" | "reading" | "pickLast" | "scoring" | "review">("ready");
   const [elapsed, setElapsed] = useState(0);
   const [waited, setWaited] = useState(0);
   const [manualSeconds, setManualSeconds] = useState(0);
   const [marks, setMarks] = useState<Set<number>>(() => new Set());
   const [done, setDone] = useState<Done | null>(null);
+  /** The speech service's word-by-word result; null when it wasn't used or couldn't answer. */
+  const [heard, setHeard] = useState<TranscribeResponse | null>(null);
+  const recording = useRef<Recording | null>(null);
+  const finished = useRef(false);
+  const listensWithService = mode === "live" && !!passageId;
+
+  useEffect(() => {
+    if (listensWithService) warmSpeech();
+    return () => recording.current?.cancel();
+  }, [listensWithService]);
 
   const alignment = useMemo(() => align(passage, spoken), [passage, spoken]);
   const latest = useRef({ alignment, spoken });
@@ -71,12 +90,14 @@ function Run({ passage, title, kidName, grade, mode, supported, onMode, onRestar
     if (tick.current) clearInterval(tick.current);
   }, []);
 
-  const assessment = useMemo(
-    () => (done ? assess({ passage, spoken: done.spoken, seconds: done.seconds, grade, date: done.at, parentMarks: marks }) : null),
-    [done, passage, grade, marks],
-  );
+  const assessment = useMemo(() => {
+    if (!done) return null;
+    if (heard) return assessHeard({ passage, heard, flipped: marks, seconds: done.seconds, grade, date: done.at });
+    return assess({ passage, spoken: done.spoken, seconds: done.seconds, grade, date: done.at, parentMarks: marks });
+  }, [done, heard, passage, grade, marks]);
 
   function finish(seconds: number) {
+    finished.current = true;
     if (tick.current) clearInterval(tick.current);
     tick.current = null;
     if (mode === "manual") {
@@ -87,13 +108,37 @@ function Run({ passage, title, kidName, grade, mode, supported, onMode, onRestar
     source.stop();
     setMarks(new Set());
     setDone({ spoken: latest.current.spoken, seconds, at: new Date() });
-    setPhase("review");
+    const rec = recording.current;
+    recording.current = null;
+    if (!rec || !passageId) {
+      setPhase("review");
+      return;
+    }
+    // Score the recording word by word; without an answer, the live result above is used.
+    setPhase("scoring");
+    rec
+      .stop()
+      .then(({ audio }) => transcribeReading({ audio, textId: passageId, seconds }))
+      .catch(() => null)
+      .then((res) => {
+        if (res && res.lastAttempted >= 0) setHeard(res);
+        setPhase("review");
+      });
   }
 
   function begin() {
     setPhase("reading");
     const startedAt = performance.now();
     if (mode !== "manual") source.start();
+    if (listensWithService && recordingSupported()) {
+      startRecording()
+        .then((rec) => {
+          // Stopped before the microphone was ready: don't leave it on.
+          if (finished.current) rec.cancel();
+          else recording.current = rec;
+        })
+        .catch(() => {});
+    }
     // The minute starts with the first word heard, as in a teacher-run check. When the parent
     // marks it, they press start as the child begins.
     tick.current = setInterval(() => {
@@ -127,15 +172,30 @@ function Run({ passage, title, kidName, grade, mode, supported, onMode, onRestar
   const hearsNothing = waitingForFirstWord && mode === "live" && waited >= 8 && !speech.error;
   const micProblem = mode === "live" && (speech.error || hearsNothing);
 
+  if (phase === "scoring") {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center" role="status">
+        <span className="pulse-dot h-4 w-4 rounded-full bg-candy" aria-hidden="true" />
+        <p className="text-lg font-semibold">Checking every word…</p>
+        <p className="text-sm text-night-soft">A few seconds.</p>
+      </div>
+    );
+  }
+
   if (phase === "review" && assessment) {
     const { score } = assessment;
     const tooShort = isTooShort(score);
     const cut = Math.min(passage.length, assessment.alignment.lastAttempted + 9);
+    const unsure = new Set((heard?.toReview ?? []).filter((i) => !marks.has(i)));
     return (
       <div className="flex flex-1 flex-col gap-4">
         <div>
           <h1 className="text-[26px] font-semibold leading-tight">Check the scoring</h1>
-          <p className="mt-1 text-sm text-night-soft">Red words count as mistakes. Tap any word to flip it.</p>
+          <p className="mt-1 text-sm text-night-soft">
+            {unsure.size
+              ? `Red words count as mistakes. Orange words: the app wasn’t sure. Tap one if ${kidName} read it wrong.`
+              : "Red words count as mistakes. Tap any word to flip it."}
+          </p>
         </div>
         <div className="grid grid-cols-3 gap-2 text-center">
           {[
@@ -151,7 +211,7 @@ function Run({ passage, title, kidName, grade, mode, supported, onMode, onRestar
         </div>
         {tooShort ? <p className="rounded-3xl bg-peach/40 px-5 py-4 text-sm font-medium">That was too little reading to compare with other children. Try again and read for the whole minute.</p> : null}
         <div className="rounded-[28px] bg-white p-5">
-          <PassageView passage={passage.slice(0, cut)} words={assessment.alignment.words} lastAttempted={assessment.alignment.lastAttempted} mode="review" onTap={toggleMark} />
+          <PassageView passage={passage.slice(0, cut)} words={assessment.alignment.words} lastAttempted={assessment.alignment.lastAttempted} mode="review" onTap={toggleMark} unsure={unsure} />
         </div>
         <div className="sticky bottom-0 -mx-5 mt-auto grid gap-2 bg-gradient-to-t from-mist from-70% to-transparent px-5 pb-[max(20px,env(safe-area-inset-bottom))] pt-6">
           <BigButton disabled={tooShort} onClick={() => onResult(assessment)}>
