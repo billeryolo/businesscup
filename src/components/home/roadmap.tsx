@@ -7,7 +7,8 @@ import { motion } from "motion/react";
 import Link from "next/link";
 import { Icon } from "@/components/icons";
 import { todayFor } from "@/lib/plan/today";
-import { type DayStatus, type Roadmap, roadmapFor } from "@/lib/roadmap";
+import { weeklyReminderIcs } from "@/lib/calendar";
+import { type DayStatus, remainingCheckDays, type Roadmap, roadmapFor } from "@/lib/roadmap";
 import type { CheckRecord } from "@/lib/store/checks";
 import type { Kid } from "@/lib/store/family";
 
@@ -106,6 +107,28 @@ export function RoadmapCard({ kid, checks }: { kid: Kid; checks: CheckRecord[] }
           </Link>
         </motion.div>
       ) : null}
+
+      <CalendarButton kid={kid} roadmap={roadmap} />
     </div>
+  );
+}
+
+/** Puts the remaining weekly check days in the parent's own calendar, with an alert at 6 pm. */
+function CalendarButton({ kid, roadmap }: { kid: Kid; roadmap: Roadmap }) {
+  const now = new Date();
+  const left = remainingCheckDays(roadmap, now);
+  if (!left) return null;
+  function add() {
+    const ics = weeklyReminderIcs({ childName: kid.name, url: `${window.location.origin}/checkup`, start: left!.start, now, weeks: left!.count, uid: `${kid.id}-${left!.start.getTime()}` });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
+    link.download = "readbuddy-check-days.ics";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
+  }
+  return (
+    <button type="button" onClick={add} className="mt-3 flex h-11 w-full items-center justify-center rounded-full bg-mist text-sm font-semibold">
+      Add {left.count === 1 ? "the next check day" : `the ${left.count} check days`} to my calendar
+    </button>
   );
 }

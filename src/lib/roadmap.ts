@@ -153,3 +153,16 @@ export function roadmapFor(kid: { name: string; grade: Grade; practiced?: readon
     action,
   };
 }
+
+/**
+ * The path's remaining check days, for a calendar reminder at 6 pm each week. Null when none are
+ * left. Today counts if its check isn't done and 6 pm hasn't passed.
+ */
+export function remainingCheckDays(roadmap: Roadmap, now: Date): { start: Date; count: number } | null {
+  const pending = roadmap.weeks
+    .map((w) => w.days[6])
+    .filter((d) => d.status === "upcoming" || d.status === "today")
+    .map((d) => new Date(`${d.date}T18:00:00`))
+    .filter((d) => d.getTime() > now.getTime());
+  return pending.length ? { start: pending[0], count: pending.length } : null;
+}

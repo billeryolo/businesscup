@@ -1,63 +1,100 @@
 # ReadBuddy
 
-A one-minute reading check for parents of kids in grades 1–4. The child reads a grade-level
-passage aloud; the app counts words correct per minute (WCPM), compares it with the
-Hasbrouck & Tindal 2017 oral reading fluency norms, finds the mistake patterns, and gives the
-parent a verdict, one thing to do tonight, and a 4-week plan. With an account, results are saved
-and a weekly re-check with a new story builds a progress chart. The product plan is in
-[`../docs/PLAN.md`](../docs/PLAN.md).
+**A 1-minute reading and math check that parents run at home, scored against national norms, with
+a 4-week practice path and a one-page report for the teacher.** For children from Pre-K to grade 4.
+No account: the family's data stays on the phone.
+
+Live: <https://readbuddy-rho.vercel.app> → "Try with a demo family" shows a child with four weeks
+of history.
+
+## Why
+
+88–92% of parents believe their child reads at grade level, while 40% of US 4th graders read below
+NAEP Basic (2024). Schools screen a few times a year and send home a number without a plan; the
+tools with real diagnostics are sold to schools, not parents. ReadBuddy gives the parent the same
+kind of 1-minute screening a teacher uses, explains it in plain words, and turns it into practice
+that works at home.
+
+## What a family gets
+
+1. **A 1-minute check.** The child reads an unpractised grade-level story aloud (grades 1–4),
+   names letters (Pre-K, K) or answers math facts. ReadBuddy listens, counts words correct per
+   minute and accuracy, and compares them with published benchmarks.
+2. **An honest verdict.** On track / Needs practice / Talk to the teacher, with the mistake
+   patterns it noticed (guessing from the first letter, skipping small words, losing the line…).
+   Always a screening, never a diagnosis.
+3. **A 4-week path.** From the latest check to a realistic goal: weekly aims follow typical growth
+   for the grade (about 1.5 words a minute a week in grades 1–2), one short practice a day, a
+   re-check every 7th day, check days added to the parent's calendar.
+4. **Practice that matches the result.** Short games (Hear a letter, Big word, Speed math, an
+   AI-written story about what the child loves) in ReadBuddy's own voice.
+5. **A report for the teacher.** One page: scores against named benchmarks, growth, practice days
+   and questions to ask. Print, save as PDF or share as text.
+6. **A parent assistant** that answers from the child's real numbers.
+
+## Why the results can be trusted
+
+| Number | Source |
+|---|---|
+| Reading, grades 1–4: words correct per minute by grade and season | Hasbrouck & Tindal (2017) oral reading fluency norms |
+| Letter naming, kindergarten | DIBELS 8 benchmark goals (University of Oregon, 2020) |
+| Math facts, grades 1–4 | Rocket Math fact fluency benchmarks (2024) |
+| Pre-K letters, K math | App goals, labelled as such (no published per-minute benchmark) |
+| Weekly growth on the path | Fuchs et al. 1993, Deno et al. 2001 (via Christ et al. 2010) |
+
+Every number and its caveats: [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md).
+
+**Listening.** "The app listens" records the minute and sends it to our speech service
+([`speech/app.py`](speech/app.py), on Modal). Two models hear it: wav2vec2-large, which writes what
+it hears and catches misreadings, and Whisper, which rarely flags a correct word. Words they agree
+on are decided; words they disagree on are shown to the parent to confirm. On a test set of 6
+recordings with 66 planted mistakes, this caught 89% of mistakes with 94% of flags correct and an
+average words-a-minute error under 1 ([`speech/bakeoff/results.md`](speech/bakeoff/results.md)).
+The test voices are synthetic and clearer than children, so real-world numbers will be lower. If
+the service can't answer, the browser's own recognizer is used, and the parent can always mark the
+reading by hand.
+
+## How it's built
+
+- **Next.js 16** web app (installable, phone-first), deployed on **Vercel**.
+- **On the phone:** the family, checks and practice days live in `localStorage`
+  ([`src/lib/store/`](src/lib/store/)). No account, no database.
+- **Speech:** [`speech/app.py`](speech/app.py) on **Modal**: wav2vec2 + Whisper on a T4 GPU, and
+  Kokoro text-to-speech for ReadBuddy's voice. Audio is used for one request and never stored.
+- **AI:** DeepSeek writes stories, the parent summary and the assistant's answers; the child's name
+  never reaches a model (a placeholder is swapped on our side). Built-in rules answer if it fails.
+
+| Piece | Where |
+|---|---|
+| Scoring a reading: alignment, words correct per minute, mistake patterns, verdict | [`src/lib/reading/`](src/lib/reading/) |
+| Letters and math checks, published goals | [`src/lib/checks/quick.ts`](src/lib/checks/quick.ts) |
+| Two-model speech merge and the review step | [`src/lib/speech/merge.ts`](src/lib/speech/merge.ts), [`src/app/api/transcribe/route.ts`](src/app/api/transcribe/route.ts) |
+| ReadBuddy's voice: pre-made clips, live voice, phone fallback | [`src/lib/speech/voice.ts`](src/lib/speech/voice.ts), [`src/app/api/speak/route.ts`](src/app/api/speak/route.ts) |
+| 4-week path, streak, calendar | [`src/lib/roadmap.ts`](src/lib/roadmap.ts), [`src/components/home/roadmap.tsx`](src/components/home/roadmap.tsx) |
+| Teacher report | [`src/lib/report.ts`](src/lib/report.ts), [`src/app/report/page.tsx`](src/app/report/page.tsx) |
+| Progress over time | [`src/lib/progress/`](src/lib/progress/), [`src/lib/progress.ts`](src/lib/progress.ts) |
+| AI: DeepSeek, Claude fallback, rules | [`src/lib/ai/`](src/lib/ai/) |
+| API contract between screens and backend | [`src/lib/api/contract.ts`](src/lib/api/contract.ts) |
+| Games | [`src/lib/games/`](src/lib/games/), [`src/components/games/`](src/components/games/) |
 
 ## Run it
 
 ```bash
 npm install
 npm run dev        # http://localhost:3000
-npm test           # scoring, passages, records
+npm test           # 90 tests: scoring, norms, speech merge, path, report, games, contract
 npm run build
 ```
 
-Copy `.env.example` to `.env.local` for optional features:
+Optional settings in `.env.local` (see [`.env.example`](.env.example)): `SPEECH_URL`,
+`VOICE_URL`, `SPEECH_TOKEN` for the speech service ([`speech/README.md`](speech/README.md)),
+`DEEPSEEK_API_KEY` for the AI. Without them everything still works: the browser listens, the
+games use pre-made clips, built-in rules write the text. Deploying: [`docs/SETUP.md`](docs/SETUP.md).
 
-- Supabase keys turn on accounts, saved results and the dashboard. Without them the free check
-  works end to end and account features are hidden.
-- `ANTHROPIC_API_KEY` lets Claude write the parent summary; otherwise the built-in rules do.
+## Privacy
 
-Speech recognition uses the browser's built-in service, which often mishears names, so a name
-(a word capitalized mid-sentence) counts as read whatever was heard; the parent can still tap it
-as wrong. The microphone mode works in Chrome, Edge and Safari, after the parent ticks the consent
-box. Every browser can use "Score it myself" (the parent taps mistakes and the last word read) and
-"Watch a demo recording" (a scripted reader, always labelled as a demo and never saved).
+No account and no database: the family lives on the phone. A recording is sent once to be scored
+and deleted. The AI sees placeholders, never the child's name. Screening, not diagnosis: the copy
+and the AI instructions never name a condition.
 
-Practice mode (`/practice`) shows one big word at a time or words split into syllables. It is
-never scored: both change the task, so the results wouldn't compare with the norms. It uses its own
-stories, plus the story from the child's last check, so practice never spoils a future check.
-
-## Deploy
-
-Step by step, including the database: [`docs/SETUP.md`](docs/SETUP.md).
-
-## How it works
-
-| Piece | File |
-|---|---|
-| Norms table, seasons, percentile bands, the 10-words-below-median rule | `src/lib/reading/norms.ts` |
-| Matching what was heard to the passage (misread, skipped, extra, not reached); names get leeway | `src/lib/reading/align.ts`, `src/lib/reading/text.ts` |
-| WCPM, accuracy, parent corrections | `src/lib/reading/score.ts` |
-| Mistake patterns and their parent-facing copy | `src/lib/reading/patterns.ts` |
-| Verdict rules | `src/lib/reading/assess.ts` |
-| Passages (12 original stories, readability-checked) and which one comes next | `src/lib/reading/passages.ts` |
-| What gets stored per reading (scores, one letter per word, no audio) | `src/lib/reading/record.ts` |
-| Rule-based summary and plan | `src/lib/reading/summary.ts` |
-| Claude-written summary (the child's name never reaches the model) | `src/lib/ai/parent-summary.ts`, `src/app/api/summary/route.ts` |
-| Browser speech recognition and the demo reader | `src/lib/speech/` |
-| The check flow screens, consent, save prompts | `src/components/check/` |
-| Accounts: sign-in links, session refresh, saving | `src/lib/supabase/`, `src/proxy.ts`, `src/app/auth/`, `src/lib/save.ts` |
-| Interest test ("start free trial" clicks) | `src/app/api/interest/route.ts` |
-| Dashboard and progress chart | `src/app/dashboard/`, `src/components/dashboard/` |
-| Practice mode: one big word at a time, syllables, practice-only stories (never scored) | `src/app/practice/`, `src/components/practice/`, `src/lib/reading/syllables.ts` |
-| Weekly calendar reminder, built on the device | `src/lib/calendar.ts`, `src/components/reminder-button.tsx` |
-| Share preview image, icons, robots, sitemap | `src/app/opengraph-image.tsx`, `src/app/icon.svg`, `src/app/robots.ts`, `src/app/sitemap.ts` |
-| Database schema and row-level security | `supabase/migrations/` |
-
-The result is a screening, not a diagnosis; the copy and the AI instructions never name a
-condition.
+Business case and roadmap: [`docs/PITCH.md`](docs/PITCH.md).

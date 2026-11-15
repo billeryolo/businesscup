@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { demoChecks } from "./store/demo-checks";
-import { dayKey, roadmapFor, streakFrom } from "./roadmap";
+import { dayKey, remainingCheckDays, roadmapFor, streakFrom } from "./roadmap";
 import type { CheckRecord } from "./store/checks";
 
 // Saturday 14 November 2026, evening.
@@ -68,5 +68,14 @@ describe("roadmapFor", () => {
     expect(roadmapFor(mia, [], NOW)).toBeNull();
     const old = miaChecks.map((c) => ({ ...c, at: new Date(2026, 9, 1).toISOString() }));
     expect(roadmapFor(mia, old, NOW)).toBeNull();
+  });
+
+  it("lists the check days still ahead for the calendar, skipping today once 6 pm has passed", () => {
+    const r = roadmapFor(mia, miaChecks, NOW)!; // 8 pm on check day 7
+    const left = remainingCheckDays(r, NOW)!;
+    expect(left.count).toBe(3);
+    expect([left.start.getDate(), left.start.getHours()]).toEqual([21, 18]);
+    const morning = new Date(2026, 10, 14, 9, 0);
+    expect(remainingCheckDays(roadmapFor(mia, miaChecks, morning)!, morning)!.count).toBe(4);
   });
 });
