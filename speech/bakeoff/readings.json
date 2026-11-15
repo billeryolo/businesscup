@@ -1,0 +1,170 @@
+[
+  {
+    "id": "g2-zira",
+    "textId": "g2-lemonade",
+    "voice": "sapi:Zira:-1",
+    "script": "On the first hot day of summer, Maya and her brother Leo wanted to sat lemonade. They found an old table in um, garage. They dragged it to the end of the driveway. Leo made a sign tht said cod Lemonade, Fifty Cents. He spelled lemonade wrong, so Maya helped him fix it. In the kitchen, got very sticky. They added water, sugar, and and big pile of ice. Maya took a sip and",
+    "lastWord": 79,
+    "errors": [
+      14,
+      22,
+      37,
+      39,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      70
+    ],
+    "planted": [
+      "\"sell\" read as \"sat\"",
+      "skipped \"the\"",
+      "\"that\" read as \"tht\"",
+      "\"\"Cold\" read as \"cod\"",
+      "skipped line: \"they squeezed twelve lemons. Their hands\"",
+      "skipped \"a\""
+    ]
+  },
+  {
+    "id": "g2-david",
+    "textId": "g2-lemonade",
+    "voice": "sapi:David:0",
+    "script": "On the first hot summer, Maya and her brother Leo want to sell lemonade. They found an old table in the garage. They dragged it to the a sign that said Cold Lemonade, Fifty Cents. He spelled lemonade wrong, so Maya help him fix fix it. In the kitchen, um, they squeezed twelve lemons. Their hands got very sticky. thy added water, sugar, and a big pile of ice. Maya took a sip and",
+    "lastWord": 79,
+    "errors": [
+      4,
+      5,
+      12,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      49,
+      65
+    ],
+    "planted": [
+      "skipped \"day\"",
+      "skipped \"of\"",
+      "\"wanted\" read as \"want\"",
+      "skipped line: \"end of the driveway. Leo made\"",
+      "\"helped\" read as \"help\"",
+      "\"They\" read as \"thy\""
+    ]
+  },
+  {
+    "id": "g2-kokoro",
+    "textId": "g2-lemonade",
+    "voice": "kokoro",
+    "script": "On the first hot day of summer, Maya her brother Leo wanted to sell lemonade. They fond an old table in the got. They dragged it to the end of the driveway. Leo made a sign that said Cold Lemonade, so Maya helped him fix it. In the kitchen, they squeezed twelve lemons. Their hands got very sticky. They added water, um, sugar, and a big pot of Maya took a sip and",
+    "lastWord": 79,
+    "errors": [
+      8,
+      17,
+      23,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      72,
+      74
+    ],
+    "planted": [
+      "skipped \"and\"",
+      "\"found\" read as \"fond\"",
+      "\"garage.\" read as \"got\"",
+      "skipped line: \"Fifty Cents.\" He spelled lemonade wrong,\"",
+      "\"pile\" read as \"pot\"",
+      "skipped \"ice.\""
+    ]
+  },
+  {
+    "id": "g3-zira",
+    "textId": "g3-night-garden",
+    "voice": "sapi:Zira:0",
+    "script": "Grandpa Joe had a secret about his gaden. the daytime, um, it looked like any other garden. It had rows of beans, red tomatoes, and ten yellow sunflowers. But Grandpa sat the best part the garden only came out after dark. One night in August, Nora got to stay up late to see it. She and Grandpa carried the back of the yard. At first, Nora did not see anything special. The The air was warm, and crickets were chirping in the grass. Then",
+    "lastWord": 89,
+    "errors": [
+      7,
+      8,
+      25,
+      30,
+      34,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64
+    ],
+    "planted": [
+      "\"garden.\" read as \"gaden\"",
+      "skipped \"In\"",
+      "\"tall\" read as \"ten\"",
+      "\"said\" read as \"sat\"",
+      "skipped \"of\"",
+      "skipped line: \"a flashlight and two chairs to\""
+    ]
+  },
+  {
+    "id": "g3-david",
+    "textId": "g3-night-garden",
+    "voice": "sapi:David:-2",
+    "script": "Grandpa Joe had a secret um, about his gaden. In the dog, it looked like any other got. It had rows of beans, red tomatoes, and the best part of the garden only only came out after dark. One night August, Nora got to stay up late to see it. She and Grandpa carried a flashlight and chairs to the back of the yard. At first, Nora did not see anything special. The air was warm, and crickets were chirping in the grass. Then",
+    "lastWord": 89,
+    "errors": [
+      7,
+      10,
+      16,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      44,
+      62
+    ],
+    "planted": [
+      "\"garden.\" read as \"gaden\"",
+      "\"daytime,\" read as \"dog\"",
+      "\"garden.\" read as \"got\"",
+      "skipped line: \"tall yellow sunflowers. But Grandpa said\"",
+      "skipped \"in\"",
+      "skipped \"two\""
+    ]
+  },
+  {
+    "id": "g3-kokoro",
+    "textId": "g3-night-garden",
+    "voice": "kokoro",
+    "script": "Grandpa Joe had a secret about his garden. In the dog, it looked lot any other garden. It had rows of beans, red tomatoes, tall yellow sunflowers. But Grandpa said the best part of the garden only came out Nora got to stay up late to see it. She and Grandpa carried a flashlight and two chairs to the back of the yard. At first, Nora did not see anything special. The air warm, um, and crickets were chirp in the grass. Then",
+    "lastWord": 89,
+    "errors": [
+      10,
+      13,
+      24,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      80,
+      85
+    ],
+    "planted": [
+      "\"daytime,\" read as \"dog\"",
+      "\"like\" read as \"lot\"",
+      "skipped \"and\"",
+      "skipped line: \"after dark. One night in August,\"",
+      "skipped \"was\"",
+      "\"chirping\" read as \"chirp\""
+    ]
+  }
+]
