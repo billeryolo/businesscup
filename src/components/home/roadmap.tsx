@@ -6,9 +6,8 @@
 import { motion } from "motion/react";
 import Link from "next/link";
 import { Icon } from "@/components/icons";
-import { todayFor } from "@/lib/plan/today";
 import { weeklyReminderIcs } from "@/lib/calendar";
-import { type DayStatus, remainingCheckDays, type Roadmap, roadmapFor } from "@/lib/roadmap";
+import { type DayStatus, PATH_GAME, remainingCheckDays, type Roadmap, roadmapFor } from "@/lib/roadmap";
 import type { CheckRecord } from "@/lib/store/checks";
 import type { Kid } from "@/lib/store/family";
 import { PlusNote } from "@/components/plus-note";
@@ -73,7 +72,7 @@ export function RoadmapCard({ kid, checks }: { kid: Kid; checks: CheckRecord[] }
     );
   }
 
-  const firstGame = todayFor(kid)[0];
+  const game = PATH_GAME[roadmap.kind];
   return (
     <div className={card}>
       <div className="flex items-center justify-between gap-3">
@@ -101,10 +100,10 @@ export function RoadmapCard({ kid, checks }: { kid: Kid; checks: CheckRecord[] }
       {roadmap.action ? (
         <motion.div whileTap={{ scale: 0.96 }} className="mt-4">
           <Link
-            href={roadmap.action === "check" ? "/checkup" : `/play/${firstGame.id}`}
+            href={roadmap.action === "check" ? "/checkup" : `/play/${game.id}`}
             className="flex h-12 items-center justify-center rounded-full bg-night text-[15px] font-semibold text-white"
           >
-            {roadmap.action === "check" ? "Do this week’s check" : `Start today: ${firstGame.title}`}
+            {roadmap.action === "check" ? "Do this week’s check" : roadmap.today === 0 ? `Head start: ${game.title}` : `Start today: ${game.title}`}
           </Link>
         </motion.div>
       ) : null}

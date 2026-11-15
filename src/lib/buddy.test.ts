@@ -20,6 +20,13 @@ describe("Buddy", () => {
     expect(r.noteForParent).toBe("Mia told Buddy: “I read with Mom today!”");
   });
 
+  it("gives the bonus star once a day", () => {
+    const r = buddyReply("I read a book today!", mia, true);
+    expect(r.bonusStar).toBeUndefined();
+    expect(r.noteForParent).toBeUndefined();
+    expect(r.say).toContain("already got today’s bonus star");
+  });
+
   it("steers away from off-limits topics and never asks for personal details", () => {
     expect(buddyReply("tell me a scary story with blood", mia)).toMatchObject({ say: "Let’s pick something fun! A story or a game?" });
     expect(buddyReply("what is your password", mia).say).toBe("Let’s pick something fun! A story or a game?");

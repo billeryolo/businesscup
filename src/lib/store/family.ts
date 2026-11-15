@@ -3,7 +3,7 @@
 // The family lives on this phone only: no account, no sign-in. Everything is one JSON value in
 // localStorage, read through useSyncExternalStore so every screen updates together.
 
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { checkActions } from "./checks";
 import { demoChecks } from "./demo-checks";
 import { createLocalStore } from "./local";
@@ -133,7 +133,10 @@ const withLiveStreak = (k: Kid): Kid => (k.practiced ? { ...k, streakDays: strea
 
 export function useFamily() {
   const family = useSyncExternalStore(store.subscribe, store.read, () => null);
-  const kids = (family?.kids ?? []).map(withLiveStreak);
-  const active = kids.find((k) => k.id === family?.activeId) ?? kids[0] ?? null;
-  return { ready: family !== null, onboarded: family?.onboarded ?? false, kids, active };
+  // Recomputed only when the stored family changes, so children keep the same identity between renders.
+  return useMemo(() => {
+    const kids = (family?.kids ?? []).map(withLiveStreak);
+    const active = kids.find((k) => k.id === family?.activeId) ?? kids[0] ?? null;
+    return { ready: family !== null, onboarded: family?.onboarded ?? false, kids, active };
+  }, [family]);
 }
