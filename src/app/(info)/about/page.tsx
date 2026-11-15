@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { InfoCard, InfoList, InfoPage } from "@/components/app/info";
-import { MAX_KIDS } from "@/lib/store/family";
+import { MAX_KIDS } from "@/lib/store/limits";
 
 export const metadata: Metadata = { title: "About — ReadBuddy", alternates: { canonical: "/about" } };
 

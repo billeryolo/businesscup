@@ -31,7 +31,9 @@ export type Family = {
   onboarded: boolean;
 };
 
-export const MAX_KIDS = 3;
+import { MAX_KIDS } from "./limits";
+
+export { MAX_KIDS };
 const KEY = "readcheck.family.v1";
 const EMPTY: Family = { kids: [], activeId: null, onboarded: false };
 
