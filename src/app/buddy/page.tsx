@@ -14,7 +14,7 @@ import { clay, KidStage } from "@/components/kid/stage";
 import { BUDDY_CHIPS, type BuddyReply, buddyReply } from "@/lib/buddy";
 import { useDictation } from "@/lib/speech/dictation";
 import { say } from "@/lib/speech/say";
-import { diaryActions } from "@/lib/store/diary";
+import { diaryActions, useDiary } from "@/lib/store/diary";
 import { familyActions, useFamily } from "@/lib/store/family";
 
 export default function BuddyPage() {
@@ -22,6 +22,7 @@ export default function BuddyPage() {
   const { ready, active: kid } = useFamily();
   const [reply, setReply] = useState<BuddyReply | null>(null);
   const [cheer, setCheer] = useState(false);
+  const diary = useDiary(kid?.id);
 
   useEffect(() => {
     if (ready && !kid) router.replace("/welcome");
@@ -29,7 +30,10 @@ export default function BuddyPage() {
 
   function talk(text: string) {
     if (!kid) return;
-    const r = buddyReply(text, kid);
+    // One bonus star a day: Buddy's note in today's diary means the star was already given.
+    const today = new Date().toDateString();
+    const cheeredToday = diary.some((e) => e.text.startsWith(`${kid.name} told Buddy`) && new Date(e.at).toDateString() === today);
+    const r = buddyReply(text, kid, cheeredToday);
     setReply(r);
     say(r.say);
     if (r.bonusStar) {

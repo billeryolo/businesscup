@@ -42,6 +42,13 @@ export function streakFrom(practiced: readonly string[], today: Date): number {
   return n;
 }
 
+/** The game that practises the path's skill. */
+export const PATH_GAME: Record<CheckKind, { id: "big-word" | "hear-a-letter" | "speed-math"; title: string }> = {
+  reading: { id: "big-word", title: "Big word" },
+  letters: { id: "hear-a-letter", title: "Hear a letter" },
+  math: { id: "speed-math", title: "Speed math" },
+};
+
 export function weeklyGrowth(kind: CheckKind, grade: Grade): number {
   if (kind === "reading") return grade >= 3 ? 1 : 1.5;
   if (kind === "letters") return 0.75;
@@ -88,12 +95,13 @@ export type Roadmap = {
  * path. `checks` come newest first, as the store gives them.
  */
 export function roadmapFor(kid: { name: string; grade: Grade; practiced?: readonly string[] }, checks: CheckRecord[], now: Date): Roadmap | null {
+  // The latest check of the grade's main skill, or else the latest recent check of any kind.
+  const recent = checks.filter((c) => daysBetween(new Date(c.at), now) <= PATH_DAYS);
   const main = checksFor(kid.grade)[0];
-  const latest = checks.find((c) => c.kind === main) ?? checks[0];
+  const latest = recent.find((c) => c.kind === main) ?? recent[0];
   if (!latest) return null;
   const startDate = new Date(latest.at);
   const today = daysBetween(startDate, now);
-  if (today > PATH_DAYS) return null;
 
   const kind = latest.kind;
   const growth = weeklyGrowth(kind, kid.grade);
@@ -114,7 +122,8 @@ export function roadmapFor(kid: { name: string; grade: Grade; practiced?: readon
     }
     const inWeek = checks.filter((c) => {
       const d = daysBetween(startDate, new Date(c.at));
-      return c.kind === kind && c.id !== latest.id && d > (week - 1) * 7 && d <= week * 7 + 3;
+      // Each week owns days (7w-4, 7w+3]: a check a few days early or late still counts, but only once.
+      return c.kind === kind && c.id !== latest.id && d > (week === 1 ? 0 : (week - 1) * 7 + 3) && d <= week * 7 + 3;
     });
     return { week, days, aim: Math.round(latest.score + growth * week), got: inWeek.length ? Math.max(...inWeek.map((c) => c.score)) : null };
   });
@@ -128,7 +137,9 @@ export function roadmapFor(kid: { name: string; grade: Grade; practiced?: readon
   let next: string;
   let action: Roadmap["action"];
   if (today === 0) {
-    next = `Day 1 starts tomorrow: a few minutes of practice. By the end of the week, aim for ${weeks[0].aim}.`;
+    next = practiced.has(todayKey)
+      ? `Head start done! Day 1 is tomorrow; by the end of the week, aim for ${weeks[0].aim}.`
+      : `Day 1 is tomorrow. A few minutes today gives a head start; by the end of the week, aim for ${weeks[0].aim}.`;
     action = practiced.has(todayKey) ? null : "practice";
   } else if (todayStep?.check && todayStep.status === "today") {
     next = `Today is check day: aim for ${thisWeek.aim} ${unit}.`;

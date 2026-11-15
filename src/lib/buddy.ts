@@ -22,12 +22,14 @@ export const BUDDY_CHIPS = [
   { label: "I read today!", ask: "I read a book today!" },
 ];
 
-export function buddyReply(said: string, kid: { name: string; stars: number }): BuddyReply {
+/** `cheeredToday`: Buddy already gave today's bonus star, so good news gets a cheer but no extra star. */
+export function buddyReply(said: string, kid: { name: string; stars: number }, cheeredToday = false): BuddyReply {
   const text = said.trim();
   if (!text) return { say: `Hi ${kid.name}! Do you want a story or a game?` };
   if (OFF_LIMITS.test(text)) return { say: "Let’s pick something fun! A story or a game?", open: { label: "Story time", href: "/play/story" } };
 
   if (/\b(i|we) (read|did reading|practi[cs]ed)\b/i.test(text) || /\bread with\b/i.test(text)) {
+    if (cheeredToday) return { say: `Yay, more reading! You already got today’s bonus star, ${kid.name}. Keep going!` };
     return { say: `Wow, ${kid.name}! That’s amazing. Here’s a bonus star!`, bonusStar: true, noteForParent: `${kid.name} told Buddy: “${text}”` };
   }
   if (/\bstars?\b/i.test(text)) return { say: kid.stars === 1 ? "You have 1 star! Let’s get more!" : `You have ${kid.stars} stars! Great job!` };

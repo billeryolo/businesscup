@@ -4,7 +4,7 @@
 // During the beta nothing is charged; the tap is recorded and remembered on this phone.
 
 import { motion } from "motion/react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Icon } from "@/components/icons";
 import { FREE, PLUS, PRICES, plusActions, type PlusPlan, useTrial } from "@/lib/plus";
@@ -14,6 +14,7 @@ import { useFamily } from "@/lib/store/family";
 const card = "rounded-[28px] bg-white p-5 shadow-[0_6px_20px_rgba(27,20,51,0.06)]";
 
 export default function PlansPage() {
+  const router = useRouter();
   const { active } = useFamily();
   const checks = useChecks(active?.id);
   const trial = useTrial();
@@ -29,9 +30,9 @@ export default function PlansPage() {
   return (
     <div className="min-h-dvh bg-lilac font-app text-night">
       <div className="mx-auto min-h-dvh max-w-[430px] bg-mist px-5 pb-10 pt-[max(20px,env(safe-area-inset-top))]">
-        <Link href="/family" className="inline-flex h-11 items-center rounded-full bg-white px-4 text-sm font-semibold">
+        <button type="button" onClick={() => (window.history.length > 1 ? router.back() : router.push("/family"))} className="inline-flex h-11 items-center rounded-full bg-white px-4 text-sm font-semibold">
           ← Back
-        </Link>
+        </button>
 
         <h1 className="mt-5 text-[28px] font-semibold leading-tight">ReadBuddy Plus</h1>
         <p className="mt-1 text-[15px] text-night-soft">

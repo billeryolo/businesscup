@@ -78,4 +78,21 @@ describe("roadmapFor", () => {
     const morning = new Date(2026, 10, 14, 9, 0);
     expect(remainingCheckDays(roadmapFor(mia, miaChecks, morning)!, morning)!.count).toBe(4);
   });
+
+  it("counts a check in one week only", () => {
+    const day8 = { ...miaChecks.find((c) => c.kind === "reading")!, id: "d8", at: new Date(2026, 10, 15, 18).toISOString(), score: 49 };
+    const r = roadmapFor(mia, [day8, ...miaChecks], new Date(2026, 10, 16, 9))!;
+    expect(r.weeks.map((w) => w.got)).toEqual([null, null, null, null]); // a new check starts a new path
+    const old = miaChecks.find((c) => c.kind === "reading")!;
+    const nine = { ...old, id: "d9", at: new Date(2026, 10, 7 + 9, 18).toISOString(), score: 50 };
+    const path = roadmapFor(mia, [nine, old], new Date(2026, 10, 17, 9))!;
+    expect(path.start).toBe(50);
+  });
+
+  it("falls back to a recent check of another kind when the main one is old", () => {
+    const oldReading = { ...miaChecks.find((c) => c.kind === "reading")!, at: new Date(2026, 8, 1).toISOString() };
+    const math = miaChecks.find((c) => c.kind === "math")!;
+    const r = roadmapFor(mia, [oldReading, math], NOW)!;
+    expect(r.kind).toBe("math");
+  });
 });
