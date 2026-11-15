@@ -1,5 +1,6 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
+import { deepseekEnabled, deepseekJson } from "./deepseek";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { CHILD, levelFor, libraryStory, type Story, storyFits, StoryShape } from "@/lib/games/story";
 import type { Grade } from "@/lib/store/family";
@@ -24,6 +25,16 @@ Rules: kind, calm and safe for a 4 to 10 year old: nothing scary, violent or sad
  */
 export async function writeStory(interest: string, grade: Grade, variant: number): Promise<Story> {
   const library = () => libraryStory(interest, grade, variant);
+  if (deepseekEnabled()) {
+    const level = levelFor(grade);
+    const story = await deepseekJson(
+      SYSTEM,
+      JSON.stringify({ interest, pages: level.pages, readingLevel: level.guide }),
+      StoryShape,
+      `{"title": "...", "pages": ["...", "..."], "questions": [{"q": "...", "choices": ["...", "...", "..."], "answer": 0}]}`,
+    );
+    return story && storyFits(story) ? { ...story, source: "ai" } : library();
+  }
   if (!process.env.ANTHROPIC_API_KEY) return library();
 
   try {

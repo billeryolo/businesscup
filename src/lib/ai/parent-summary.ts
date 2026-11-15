@@ -1,5 +1,6 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
+import { deepseekEnabled, deepseekJson } from "./deepseek";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import { type ParentSummary, rulesSummary, type SummaryFacts } from "@/lib/reading/summary";
@@ -46,6 +47,17 @@ function fillName(summary: Omit<ParentSummary, "source">, name: string): Omit<Pa
  * The child's name never leaves this server: the model sees a placeholder.
  */
 export async function writeParentSummary(facts: SummaryFacts): Promise<ParentSummary> {
+  if (deepseekEnabled()) {
+    const parsed = await deepseekJson(
+      SYSTEM,
+      JSON.stringify({ ...facts, childName: CHILD }),
+      SummarySchema,
+      `{"headline": "...", "meaning": "...", "focus": [{"title": "...", "why": "...", "tonight": "..."}], "plan": [{"week": 1, "goal": "...", "daily": "..."}, {"week": 2, ...}, {"week": 3, ...}, {"week": 4, ...}], "teacherNote": "..."}`,
+      { maxTokens: 3000 },
+    );
+    if (!parsed || parsed.plan.length !== 4 || parsed.focus.length === 0) return rulesSummary(facts);
+    return { ...fillName({ ...parsed, focus: parsed.focus.slice(0, 2) }, facts.childName), source: "ai" };
+  }
   if (!process.env.ANTHROPIC_API_KEY) return rulesSummary(facts);
 
   try {
