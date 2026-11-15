@@ -42,7 +42,7 @@ function GameCard({
           </span>
           {minutes ? (
             <span className="rounded-full bg-night px-2.5 py-0.5 text-[11px] font-semibold text-white">
-              Today · {minutes} min
+              ★ Recommended now · {minutes} min
             </span>
           ) : null}
         </span>
