@@ -21,6 +21,7 @@ import type { TranscribeResponse } from "@/lib/api/contract";
 import { type Recording, recordingSupported, startRecording, transcribeReading, warmSpeech } from "@/lib/speech/client";
 import { assessHeard } from "@/lib/speech/merge";
 import { useDemoReader } from "@/lib/speech/use-demo-reader";
+import { useSettings } from "@/lib/store/settings";
 import { useSpeechRecognition, useSpeechSupported } from "@/lib/speech/use-speech-recognition";
 import { BigButton, TimerRing } from "./bits";
 
@@ -41,7 +42,8 @@ export function ReadingCheck(props: Props) {
   const supported = useSpeechSupported();
   const [picked, setPicked] = useState<Mode | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const mode = picked ?? (supported ? "live" : "manual");
+  const settings = useSettings();
+  const mode = picked ?? (supported && settings.microphone ? "live" : "manual");
   // A new key starts the run from scratch: on a mode switch and on "Read again".
   return <Run key={`${mode}-${attempt}`} {...props} mode={mode} supported={supported} onMode={setPicked} onRestart={() => setAttempt((n) => n + 1)} />;
 }

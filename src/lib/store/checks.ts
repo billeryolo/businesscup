@@ -35,6 +35,9 @@ export const checkActions = {
   replaceAll(records: CheckRecord[]) {
     store.write(records);
   },
+  remove(id: string) {
+    store.write(store.read().filter((c) => c.id !== id));
+  },
   removeForKid(kidId: string) {
     store.write(store.read().filter((c) => c.kidId !== kidId));
   },

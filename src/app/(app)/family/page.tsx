@@ -14,9 +14,10 @@ import { ScreenHeader, Stagger } from "@/components/app/screen";
 import { say } from "@/lib/speech/say";
 import { chatActions } from "@/lib/store/assistant";
 import { checkActions, useAllChecks } from "@/lib/store/checks";
-import { familyActions, gradeLabel, type Kid, MAX_KIDS, useFamily, kidMinutes } from "@/lib/store/family";
+import { familyActions, gradeLabel, type Kid, MAX_KIDS, useFamily, kidMinutes, archetypeFor } from "@/lib/store/family";
 import { settingsActions, useSettings } from "@/lib/store/settings";
 import { PRICES, useTrial } from "@/lib/plus";
+import { dailyReminderIcs } from "@/lib/calendar";
 
 const card = "rounded-[28px] bg-white p-5 shadow-[0_6px_20px_rgba(27,20,51,0.06)]";
 const label = "text-xs font-semibold uppercase tracking-widest text-night-soft";
@@ -46,7 +47,7 @@ function ChildCard({ kid, active, checks, onEdit }: { kid: Kid; active: boolean;
             {active && <span className="flex-none rounded-full bg-lilac-soft px-2.5 py-0.5 text-xs font-semibold">Active</span>}
           </div>
           <span className="text-sm text-night-soft">
-            {gradeLabel(kid.grade)} · {kidMinutes(kid)} min a day
+            {ARCHETYPE_LABEL[archetypeFor(kid.grade)]} · {gradeLabel(kid.grade)} · {kidMinutes(kid)} min a day
           </span>
         </div>
         <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={onEdit} aria-label={`Edit ${kid.name}`} className="grid h-11 w-11 flex-none place-items-center rounded-full bg-mist">
@@ -192,6 +193,33 @@ export default function FamilyPage() {
               }}
             />
           </div>
+          <div className="mt-4 flex items-center gap-4 border-t border-night/5 pt-4">
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] font-medium">Microphone</p>
+              <p className="text-sm text-night-soft">The app listens during the reading check. Off: you mark the reading yourself.</p>
+            </div>
+            <Switch name="Microphone" on={settings.microphone} onChange={(next) => settingsActions.set({ microphone: next })} />
+          </div>
+          <div className="mt-4 border-t border-night/5 pt-4">
+            <p className="text-[15px] font-medium">Daily reminder</p>
+            <p className="text-sm text-night-soft">A “Time to play” alert in your own calendar, every day for 4 weeks.</p>
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                type="time"
+                aria-label="Reminder time"
+                value={settings.reminderTime}
+                onChange={(e) => e.target.value && settingsActions.set({ reminderTime: e.target.value })}
+                className="h-11 rounded-full bg-mist px-4 text-[15px] font-semibold"
+              />
+              <button
+                type="button"
+                onClick={() => active && addDailyReminder(active.name, active.id, settings.reminderTime)}
+                className="h-11 flex-1 rounded-full bg-night px-4 text-sm font-semibold text-white"
+              >
+                Add to my calendar
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className={card}>
@@ -252,4 +280,15 @@ function PlusCard() {
       <Chevron />
     </Link>
   );
+}
+
+const ARCHETYPE_LABEL = { explorer: "Explorer", builder: "Builder", reader: "Reader" } as const;
+
+function addDailyReminder(name: string, kidId: string, time: string) {
+  const ics = dailyReminderIcs({ childName: name, url: `${window.location.origin}/play`, time, now: new Date(), uid: `${kidId}-daily` });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
+  link.download = "readbuddy-daily-practice.ics";
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
 }

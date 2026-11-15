@@ -15,7 +15,7 @@ import { VERDICT_LABEL } from "@/lib/checks/result";
 import { changeText, curve, place, type Trend, trendFor } from "@/lib/progress/trend";
 import { progressFor } from "@/lib/progress";
 import { diaryActions, useDiary } from "@/lib/store/diary";
-import { type CheckKind, type CheckRecord, useChecks } from "@/lib/store/checks";
+import { checkActions, type CheckKind, type CheckRecord, useChecks } from "@/lib/store/checks";
 import { familyActions, gradeLabel, type Kid, useFamily } from "@/lib/store/family";
 
 const card = "rounded-[28px] bg-white p-5 shadow-[0_6px_20px_rgba(27,20,51,0.06)]";
@@ -139,6 +139,7 @@ function TrendCard({ kid, kind, trend }: { kid: Kid; kind: (typeof KINDS)[number
 
 function History({ checks }: { checks: CheckRecord[] }) {
   const [all, setAll] = useState(false);
+  const [confirming, setConfirming] = useState<string | null>(null);
   const shown = all ? checks : checks.slice(0, 5);
   return (
     <div className={card}>
@@ -160,6 +161,20 @@ function History({ checks }: { checks: CheckRecord[] }) {
                 </span>
               </span>
               <span className={`ml-auto h-2.5 w-2.5 flex-none rounded-full ${VERDICT_TONE[c.verdict]}`} title={VERDICT_LABEL[c.verdict]} />
+              {confirming === c.id ? (
+                <span className="flex flex-none gap-1.5">
+                  <button type="button" onClick={() => setConfirming(null)} className="h-9 rounded-full bg-mist px-3 text-xs font-semibold">
+                    Keep
+                  </button>
+                  <button type="button" onClick={() => checkActions.remove(c.id)} className="h-9 rounded-full bg-[#e5484d] px-3 text-xs font-semibold text-white">
+                    Delete
+                  </button>
+                </span>
+              ) : (
+                <button type="button" aria-label={`Delete the ${kind.label.toLowerCase()} check from ${day(c.at)}`} onClick={() => setConfirming(c.id)} className="h-9 flex-none rounded-full px-2 text-xs font-semibold text-night-soft">
+                  Delete
+                </button>
+              )}
             </li>
           );
         })}
