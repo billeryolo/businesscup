@@ -95,7 +95,7 @@ export function CheckFlow({ kid, exitLabel, onExit, onBack, dots }: Props) {
 
   let screen: React.ReactNode = null;
   if (step === "pick") screen = <Pick kid={kid} exitLabel={exitLabel} onPick={setStep} onExit={onExit} />;
-  else if (step === "reading" && passage) screen = <ReadingCheck passage={words} title={passage.title} kidName={kid.name} grade={kid.grade as ReadingGrade} onResult={(a) => finish("reading", readingView(kid.name, a))} />;
+  else if (step === "reading" && passage) screen = <ReadingCheck passage={words} passageId={passage.id} title={passage.title} kidName={kid.name} grade={kid.grade as ReadingGrade} onResult={(a) => finish("reading", readingView(kid.name, a))} />;
   else if (step === "math" || step === "letters") screen = <QuickCheck key={step} kind={step} kid={kid} onResult={(r) => finish(step, quickView(kid.name, kid.grade, r))} />;
   else if (step === "result" && view) screen = <ResultScreen kid={kid} view={view} onRetry={() => setStep("pick")} />;
 

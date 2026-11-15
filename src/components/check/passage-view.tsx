@@ -25,9 +25,11 @@ type Props = {
   showNext?: boolean;
   /** Show words split into syllables (practice only: it changes the task, so never in a check). */
   syllables?: boolean;
+  /** Review only: words the speech service wasn't sure about, counted right unless tapped. */
+  unsure?: ReadonlySet<number>;
 };
 
-export function PassageView({ passage, words, lastAttempted = -1, mode, onTap, tapped, showNext = true, syllables = false }: Props) {
+export function PassageView({ passage, words, lastAttempted = -1, mode, onTap, tapped, showNext = true, syllables = false, unsure }: Props) {
   const current = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
@@ -41,9 +43,11 @@ export function PassageView({ passage, words, lastAttempted = -1, mode, onTap, t
         const isNext = showNext && i === lastAttempted + 1 && mode !== "review";
         const showMistakes = mode !== "reading";
         const lenient = mode === "review" && status === "correct" && words?.[i]?.lenient;
+        const isUnsure = mode === "review" && status === "correct" && !!unsure?.has(i);
         let marked = true;
         let cls = "rounded-md px-0.5 transition-colors ";
         if (tapped?.has(i)) cls += "bg-bad-soft text-bad underline decoration-bad decoration-2 ";
+        else if (isUnsure) cls += "bg-peach/60 text-ink underline decoration-dotted decoration-2 underline-offset-[6px] ";
         else if (status === "misread" && showMistakes) cls += "bg-bad-soft text-bad underline decoration-bad decoration-2 ";
         else if (status === "skipped" && showMistakes) cls += "text-ink-faint line-through decoration-bad decoration-2 ";
         else {
@@ -62,9 +66,11 @@ export function PassageView({ passage, words, lastAttempted = -1, mode, onTap, t
               : `${w.display}, marked wrong`
             : status === "skipped"
               ? `${w.display}, skipped`
-              : lenient
-                ? `${w.display}, a name, counted as read`
-                : w.display;
+              : isUnsure
+                ? `${w.display}, not sure: counted as read, tap if it was wrong`
+                : lenient
+                  ? `${w.display}, a name, counted as read`
+                  : w.display;
 
         const content = (
           <>

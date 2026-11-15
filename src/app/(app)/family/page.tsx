@@ -216,7 +216,7 @@ export default function FamilyPage() {
 
         <div className={`${card} py-2`}>
           {[
-            { href: "/about", text: "About ReadCheck" },
+            { href: "/about", text: "About ReadBuddy" },
             { href: "/privacy", text: "Privacy" },
             { href: "/terms", text: "Terms" },
           ].map((item, i) => (
