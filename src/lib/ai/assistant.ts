@@ -1,5 +1,6 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
+import { deepseekEnabled, deepseekStream } from "./deepseek";
 import { type AssistantFacts, type ChatMessage, CHILD, rulesReply } from "@/lib/assistant/chat";
 
 const MODEL = "claude-opus-5-5";
@@ -41,6 +42,7 @@ function rulesStream(question: string, facts: AssistantFacts): ReadableStream<Ui
  */
 export function assistantStream(messages: ChatMessage[], facts: AssistantFacts): ReadableStream<Uint8Array> {
   const question = messages[messages.length - 1].text;
+  if (deepseekEnabled()) return deepseekAssistant(messages, facts);
   if (!process.env.ANTHROPIC_API_KEY) return rulesStream(question, facts);
 
   return new ReadableStream({
@@ -74,6 +76,30 @@ export function assistantStream(messages: ChatMessage[], facts: AssistantFacts):
         else console.error("Assistant failed", error);
         if (!sent) controller.enqueue(encoder.encode(rulesReply(question, facts)));
       }
+      controller.close();
+    },
+  });
+}
+
+/** DeepSeek answers first when DEEPSEEK_API_KEY is set; the built-in answer covers any failure. */
+function deepseekAssistant(messages: ChatMessage[], facts: AssistantFacts): ReadableStream<Uint8Array> {
+  const question = messages[messages.length - 1].text;
+  return new ReadableStream({
+    async start(controller) {
+      let sent = false;
+      try {
+        const system = `${SYSTEM}
+
+Facts about ${CHILD}, measured by the app:
+${JSON.stringify(facts)}`;
+        for await (const piece of deepseekStream([{ role: "system", content: system }, ...messages.slice(-10).map((m) => ({ role: m.role, content: m.text }))])) {
+          controller.enqueue(encoder.encode(piece));
+          sent = true;
+        }
+      } catch (error) {
+        console.error("Assistant (DeepSeek) failed", error);
+      }
+      if (!sent) controller.enqueue(encoder.encode(rulesReply(question, facts)));
       controller.close();
     },
   });
