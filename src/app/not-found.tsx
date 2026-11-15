@@ -14,7 +14,7 @@ export default function NotFound() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">This page isn&apos;t here</h1>
         <p className="text-lg text-ink-soft">The link may be old or mistyped. The reading check itself is one tap away.</p>
         <div className="mt-2 flex flex-col gap-3 sm:flex-row">
-          <LinkButton href="/check">Start the free check</LinkButton>
+          <LinkButton href="/checkup">Start the free check</LinkButton>
           <LinkButton href="/" variant="secondary">
             Go to the home page
           </LinkButton>
