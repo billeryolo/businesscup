@@ -48,6 +48,9 @@ def game_lines() -> list[str]:
         lines.append(f"Yes! {letter}!")  # the cheer in hear-a-letter.tsx
     lines += big  # each Big word, said whole
     lines.append("Voice is on")  # the Family tab, when the voice is switched on
+    story_src = (ROOT / "src/lib/games/story.ts").read_text(encoding="utf-8")
+    for interest in re.findall(r'interest: "([^"]+)"', story_src):
+        lines.append(f"A story about {interest}!")  # story.tsx, while a picked-topic story is made
     return lines
 
 
