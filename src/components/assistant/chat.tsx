@@ -13,9 +13,12 @@ import { Icon } from "@/components/icons";
 import { type ChatMessage, factsFor, hideName, rulesReply, showName, suggestionsFor } from "@/lib/assistant/chat";
 import { useDictation } from "@/lib/speech/dictation";
 import { say } from "@/lib/speech/say";
+import { type Card, cardsFor } from "@/lib/assistant/actions";
+import { diaryActions } from "@/lib/store/diary";
 import { chatActions, useChat } from "@/lib/store/assistant";
+import { ActionCards } from "./cards";
 import { type CheckRecord, useChecks } from "@/lib/store/checks";
-import { type Kid, useFamily } from "@/lib/store/family";
+import { familyActions, type Kid, kidMinutes, useFamily } from "@/lib/store/family";
 import { Orb } from "./orb";
 
 const SEND_LAST = 19;
@@ -150,13 +153,32 @@ export function AssistantChat() {
     }
     if (mine.signal.aborted) return;
     const final = showName(reply, active.name).trim();
-    chatActions.set(active.id, [...history, { role: "assistant", text: final }]);
+    // What the assistant does, not just says: notes and minutes are saved now (with Undo),
+    // changes wait for Apply.
+    const kidId = active.id;
+    const cards = cardsFor(text, { checks, minutes: kidMinutes(active) }).map((c): Card => {
+      if (c.kind === "diary") return { ...c, entryId: diaryActions.add({ kidId, text }).id };
+      if (c.kind === "minutes") {
+        familyActions.markPracticed(kidId);
+        return { ...c, entryId: diaryActions.add({ kidId, text: `Read together for ${c.minutes} minutes`, minutes: c.minutes }).id };
+      }
+      return c;
+    });
+    chatActions.set(kidId, [...history, { role: "assistant", text: final, ...(cards.length ? { cards } : {}) }]);
     setDraft(null);
     if (aloud) say(final.replace(/^\s*[-•]\s+/gm, ""));
   };
 
   // Hold to talk: the question is sent on release and the answer is read aloud.
   const dictation = useDictation((spoken) => send(spoken, true));
+
+  const changeCard = (mi: number, ci: number, card: Card, action: "undo" | "apply" | "decline" | "undoApply") => {
+    if (!active) return;
+    if (action === "undo" && (card.kind === "diary" || card.kind === "minutes") && card.entryId) diaryActions.remove(card.entryId);
+    if (card.kind === "change" && action === "apply") familyActions.updateKid(active.id, { minutes: card.to });
+    if (card.kind === "change" && action === "undoApply") familyActions.updateKid(active.id, { minutes: card.from });
+    chatActions.set(active.id, messages.map((m, j) => (j === mi && m.cards ? { ...m, cards: m.cards.map((x, k) => (k === ci ? card : x)) } : m)));
+  };
 
   const startOver = () => {
     control.current?.abort();
@@ -247,7 +269,14 @@ export function AssistantChat() {
         ) : (
           <div ref={list} className="relative z-10 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 pb-4 pt-2" aria-live="polite">
             {messages.map((m, i) => (
-              <Bubble key={i} message={m} />
+              <div key={i} className={`flex flex-none flex-col ${m.role === "user" ? "items-end" : "items-start"}`}>
+                <Bubble message={m} />
+                {m.cards?.length ? (
+                  <div className="w-full max-w-[86%]">
+                    <ActionCards cards={m.cards} kidName={active.name} onChange={(ci, card, action) => changeCard(i, ci, card, action)} />
+                  </div>
+                ) : null}
+              </div>
             ))}
             <AnimatePresence>{busy && (draft ? <Bubble key="draft" message={{ role: "assistant", text: draft }} /> : <Thinking key="thinking" />)}</AnimatePresence>
           </div>

@@ -14,7 +14,7 @@ import { ScreenHeader, Stagger } from "@/components/app/screen";
 import { say } from "@/lib/speech/say";
 import { chatActions } from "@/lib/store/assistant";
 import { checkActions, useAllChecks } from "@/lib/store/checks";
-import { familyActions, gradeLabel, type Kid, MAX_KIDS, minutesFor, useFamily } from "@/lib/store/family";
+import { familyActions, gradeLabel, type Kid, MAX_KIDS, useFamily, kidMinutes } from "@/lib/store/family";
 import { settingsActions, useSettings } from "@/lib/store/settings";
 import { PRICES, useTrial } from "@/lib/plus";
 
@@ -46,7 +46,7 @@ function ChildCard({ kid, active, checks, onEdit }: { kid: Kid; active: boolean;
             {active && <span className="flex-none rounded-full bg-lilac-soft px-2.5 py-0.5 text-xs font-semibold">Active</span>}
           </div>
           <span className="text-sm text-night-soft">
-            {gradeLabel(kid.grade)} · {minutesFor(kid.grade)} min a day
+            {gradeLabel(kid.grade)} · {kidMinutes(kid)} min a day
           </span>
         </div>
         <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={onEdit} aria-label={`Edit ${kid.name}`} className="grid h-11 w-11 flex-none place-items-center rounded-full bg-mist">
