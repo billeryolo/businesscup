@@ -78,3 +78,35 @@ export function weeklyReminderIcs({ childName, url, start, now, weeks = 4, uid }
   ];
   return lines.map(fold).join("\r\n") + "\r\n";
 }
+
+/** A daily practice reminder at the parent's chosen time, starting tomorrow, for 4 weeks. */
+export function dailyReminderIcs({ childName, url, time, now, uid }: { childName: string; url: string; time: string; now: Date; uid: string }): string {
+  const who = childName.trim() || "your child";
+  const [h, m] = time.split(":").map(Number);
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, h, m, 0);
+  const end = new Date(start.getTime() + 10 * 60 * 1000);
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//ReadBuddy//Daily practice//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:${uid}@readbuddy`,
+    `DTSTAMP:${utcStamp(now)}`,
+    `DTSTART:${localStamp(start)}`,
+    `DTEND:${localStamp(end)}`,
+    "RRULE:FREQ=DAILY;COUNT=28",
+    `SUMMARY:${escapeText(`Time to play: ${who}'s practice`)}`,
+    `DESCRIPTION:${escapeText(`A few minutes of ReadBuddy practice. Start here: ${url}`)}`,
+    `URL:${url}`,
+    "BEGIN:VALARM",
+    "ACTION:DISPLAY",
+    `DESCRIPTION:${escapeText(`Time to play: ${who}'s practice`)}`,
+    "TRIGGER:PT0M",
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ];
+  return lines.map(fold).join("\r\n") + "\r\n";
+}
