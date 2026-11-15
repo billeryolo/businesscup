@@ -8,6 +8,7 @@ import { checkActions } from "./checks";
 import { demoChecks } from "./demo-checks";
 import { createLocalStore } from "./local";
 import { dayKey, streakFrom } from "@/lib/roadmap";
+import { plusActions } from "@/lib/plus";
 
 export type AnimalId = "lion" | "koala" | "monkey" | "bear" | "bunny" | "fox";
 export const ANIMALS: AnimalId[] = ["lion", "koala", "monkey", "bear", "bunny", "fox"];
@@ -96,9 +97,11 @@ export const familyActions = {
     write({ ...demoFamily, kids: demoFamily.kids.map((k) => ({ ...k, practiced: practiced[k.id] })) });
     // A few weeks of past checks, so Home and Progress show growth straight away.
     checkActions.replaceAll(demoChecks(new Date(), { mia: "demo-mia", leo: "demo-leo" }));
+    plusActions.reset();
   },
   clearAll() {
     write(EMPTY);
+    plusActions.reset();
   },
 };
 

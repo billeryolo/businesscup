@@ -7,6 +7,7 @@ import { useState } from "react";
 import { reportText, teacherReport } from "@/lib/report";
 import { useChecks } from "@/lib/store/checks";
 import { useFamily } from "@/lib/store/family";
+import { PlusNote } from "@/components/plus-note";
 
 const VERDICT_TONE: Record<string, string> = { "On track": "bg-mint", "Needs practice": "bg-peach/70", "Talk to the teacher": "bg-candy/60" };
 
@@ -130,6 +131,7 @@ export default function ReportPage() {
             Benchmarks are for comparison only; at-home conditions differ from a school test.
           </footer>
         </article>
+        <PlusNote className="mt-4" />
       </div>
     </div>
   );

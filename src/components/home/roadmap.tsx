@@ -11,6 +11,7 @@ import { weeklyReminderIcs } from "@/lib/calendar";
 import { type DayStatus, remainingCheckDays, type Roadmap, roadmapFor } from "@/lib/roadmap";
 import type { CheckRecord } from "@/lib/store/checks";
 import type { Kid } from "@/lib/store/family";
+import { PlusNote } from "@/components/plus-note";
 
 const card = "rounded-[28px] bg-white p-5 shadow-[0_6px_20px_rgba(27,20,51,0.06)]";
 
@@ -109,6 +110,7 @@ export function RoadmapCard({ kid, checks }: { kid: Kid; checks: CheckRecord[] }
       ) : null}
 
       <CalendarButton kid={kid} roadmap={roadmap} />
+      <PlusNote className="mt-3" />
     </div>
   );
 }
