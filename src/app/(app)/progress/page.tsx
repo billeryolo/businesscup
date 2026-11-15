@@ -196,6 +196,18 @@ export default function ProgressPage() {
         }
       />
 
+      {checks.length ? (
+        <Link href="/report" className="flex items-center gap-4 rounded-[28px] bg-white p-4 shadow-[0_6px_20px_rgba(27,20,51,0.06)]">
+          <span className="grid h-12 w-12 flex-none place-items-center rounded-2xl bg-lilac-soft">
+            <Icon name="book" size={26} />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-[15px] font-semibold">Report for the teacher</span>
+            <span className="block text-sm text-night-soft">One page: scores, benchmarks, growth and practice. Print or share.</span>
+          </span>
+        </Link>
+      ) : null}
+
       <div className="grid grid-cols-3 gap-3">
         {[
           { icon: "star" as const, size: 22, value: active.stars, label: "stars", tone: "bg-peach/60" },

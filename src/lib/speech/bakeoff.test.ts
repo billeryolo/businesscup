@@ -102,7 +102,10 @@ function score(predictedErrors: Set<number>, lastAttempted: number, reading: Rea
   const truth = new Set(reading.errors);
   let tp = 0;
   let fp = 0;
-  for (const i of predictedErrors) (truth.has(i) ? tp++ : fp++);
+  for (const i of predictedErrors) {
+    if (truth.has(i)) tp++;
+    else fp++;
+  }
   const fn = [...truth].filter((i) => !predictedErrors.has(i)).length;
   // Correct words read: the truth vs what the method would count (same 60 s base, so this is WCPM error).
   const trueCorrect = reading.lastWord + 1 - truth.size;
