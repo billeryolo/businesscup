@@ -24,7 +24,6 @@ security (each parent sees only their own rows), and adds `delete_my_account()`.
 3. **Environment Variables** (Production and Preview):
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — from step 1
    - `ANTHROPIC_API_KEY` — optional, mark it Sensitive; without it the rules write the summary
-   - `CONTACT_EMAIL` — optional, shown on the privacy and terms pages
 4. **Deploy.** The production branch is `main`, so every merge to it redeploys, and every PR
    gets a preview link.
 5. On the free plan, Vercel only builds commits whose author email is linked to your GitHub
