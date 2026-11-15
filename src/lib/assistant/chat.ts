@@ -2,13 +2,14 @@
 // phone, and the built-in answers used whenever the AI is not available.
 
 import { z } from "zod";
+import type { Card } from "./actions";
 import { todayFor } from "@/lib/plan/today";
 import type { CheckRecord } from "@/lib/store/checks";
-import { gradeLabel, type Kid, minutesFor } from "@/lib/store/family";
+import { gradeLabel, type Kid, kidMinutes } from "@/lib/store/family";
 
 export const CHILD = "{{child}}";
 
-export type ChatMessage = { role: "user" | "assistant"; text: string };
+export type ChatMessage = { role: "user" | "assistant"; text: string; cards?: Card[] };
 
 export const FactsShape = z.object({
   grade: z.string().max(20),
@@ -35,7 +36,7 @@ export type AssistantFacts = z.infer<typeof FactsShape>;
 export function factsFor(kid: Kid, checks: CheckRecord[], now = Date.now()): AssistantFacts {
   return {
     grade: gradeLabel(kid.grade),
-    minutes: minutesFor(kid.grade),
+    minutes: kidMinutes(kid),
     stars: kid.stars,
     streakDays: kid.streakDays,
     today: todayFor(kid).map((a) => a.title),

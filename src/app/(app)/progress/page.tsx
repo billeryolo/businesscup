@@ -14,6 +14,7 @@ import { ScreenHeader, Stagger } from "@/components/app/screen";
 import { VERDICT_LABEL } from "@/lib/checks/result";
 import { changeText, curve, place, type Trend, trendFor } from "@/lib/progress/trend";
 import { progressFor } from "@/lib/progress";
+import { diaryActions, useDiary } from "@/lib/store/diary";
 import { type CheckKind, type CheckRecord, useChecks } from "@/lib/store/checks";
 import { familyActions, gradeLabel, type Kid, useFamily } from "@/lib/store/family";
 
@@ -254,6 +255,7 @@ export default function ProgressPage() {
       <TrendCard key={`${active.id}-${kindId}`} kid={active} kind={kind} trend={trendFor(checks, kindId)} />
 
       {checks.length > 0 ? <History key={active.id} checks={checks} /> : null}
+      <Diary kidId={active.id} name={active.name} />
 
       <div className={`grid gap-3 ${checks.length ? "grid-cols-2" : ""}`}>
         {checks.length > 0 && (
@@ -297,5 +299,32 @@ function PaceLine({ trend, unit }: { trend: Trend; unit: string }) {
       {ahead ? `If you keep this pace: about ${ahead.score} ${unit} by ${by}. ` : ""}
       {next}.
     </p>
+  );
+}
+
+/** Notes the parent told the assistant, newest first. */
+function Diary({ kidId, name }: { kidId: string; name: string }) {
+  const entries = useDiary(kidId);
+  return (
+    <div className={card}>
+      <p className="text-xs font-semibold uppercase tracking-widest text-night-soft">Diary</p>
+      {entries.length === 0 ? (
+        <p className="mt-2 text-sm text-night-soft">Tell the assistant how practice went (“{name} mixed up b and d”, “we read for 20 minutes”) and it lands here.</p>
+      ) : (
+        <ul className="mt-2 grid gap-2">
+          {entries.slice(0, 12).map((e) => (
+            <li key={e.id} className="flex items-start gap-3 rounded-2xl bg-mist px-3.5 py-2.5">
+              <span className="min-w-0 flex-1 text-sm leading-snug">
+                <span className="block text-xs text-night-soft">{new Date(e.at).toLocaleDateString("en", { month: "short", day: "numeric" })}</span>
+                {e.text}
+              </span>
+              <button type="button" aria-label="Delete this note" onClick={() => diaryActions.remove(e.id)} className="flex-none text-xs font-semibold text-night-soft">
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

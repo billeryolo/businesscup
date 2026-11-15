@@ -14,7 +14,7 @@ import { ScreenHeader, Stagger } from "@/components/app/screen";
 import { VERDICT_LABEL } from "@/lib/checks/result";
 import { assistantNote, todayFor } from "@/lib/plan/today";
 import { type CheckRecord, useChecks } from "@/lib/store/checks";
-import { familyActions, gradeLabel, type Kid, MAX_KIDS, minutesFor, useFamily } from "@/lib/store/family";
+import { familyActions, gradeLabel, type Kid, MAX_KIDS, useFamily, kidMinutes } from "@/lib/store/family";
 import { RoadmapCard } from "@/components/home/roadmap";
 
 const card = "rounded-[28px] bg-white p-5 shadow-[0_6px_20px_rgba(27,20,51,0.06)]";
@@ -35,7 +35,7 @@ function Today({ kid }: { kid: Kid }) {
       </motion.div>
       <p className="text-sm font-medium text-night/70">Today’s practice</p>
       <p className="mt-1 max-w-[62%] text-[24px] font-semibold leading-tight">
-        {minutesFor(kid.grade)} minutes with {kid.name}
+        {kidMinutes(kid)} minutes with {kid.name}
       </p>
       <ul className="mt-5 grid gap-2">
         {activities.map((a, i) => (
@@ -126,7 +126,7 @@ export default function HomePage() {
 
   return (
     <Stagger className="grid gap-5">
-      <ScreenHeader title={`Hello, ${active.name}’s family!`} subtitle={`${gradeLabel(active.grade)} · ${minutesFor(active.grade)} min a day`} />
+      <ScreenHeader title={`Hello, ${active.name}’s family!`} subtitle={`${gradeLabel(active.grade)} · ${kidMinutes(active)} min a day`} />
 
       <div className="flex gap-4" role="tablist" aria-label="Children">
         {kids.map((kid) => (

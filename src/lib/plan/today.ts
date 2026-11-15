@@ -3,7 +3,7 @@
 
 import type { IconName } from "@/components/icons";
 import type { CheckRecord } from "@/lib/store/checks";
-import { archetypeFor, type Kid, minutesFor } from "@/lib/store/family";
+import { archetypeFor, type Kid, kidMinutes } from "@/lib/store/family";
 
 export type Activity = { id: "hear-a-letter" | "big-word" | "speed-math" | "story"; title: string; icon: IconName; tone: string; minutes: number;
   /** What the game trains, in a parent's words. */
@@ -27,7 +27,7 @@ export function todayFor(kid: Kid): Activity[] {
   const ids: Activity["id"][] = { explorer: ["hear-a-letter", "speed-math", "story"], builder: ["hear-a-letter", "big-word", "speed-math"], reader: ["big-word", "speed-math", "story"] }[
     archetypeFor(kid.grade)
   ] as Activity["id"][];
-  const total = minutesFor(kid.grade);
+  const total = kidMinutes(kid);
   const each = Math.floor(total / ids.length);
   return ids.map((id, i) => ({ ...GAMES[id], minutes: i === 0 ? total - each * (ids.length - 1) : each }));
 }
@@ -38,7 +38,7 @@ const KIND_GAME = { reading: "Big word", math: "Speed math", letters: "Hear a le
 export function assistantNote(kid: Kid, latest: CheckRecord | undefined): string {
   if (!latest) return `Hi! Do a 1-minute check and I’ll shape ${kid.name}’s plan around it.`;
   const game = KIND_GAME[latest.kind];
-  if (latest.verdict === "onTrack") return `${kid.name} is on track in ${latest.kind}: ${latest.score} a minute. Keep the ${minutesFor(kid.grade)} minutes a day going.`;
+  if (latest.verdict === "onTrack") return `${kid.name} is on track in ${latest.kind}: ${latest.score} a minute. Keep the ${kidMinutes(kid)} minutes a day going.`;
   if (latest.verdict === "practice") return `${kid.name} scored ${latest.score} in ${latest.kind}; we’re aiming for ${latest.target}. A few minutes of ${game} today will help.`;
   return `${kid.name}’s ${latest.kind} check is worth showing to the teacher. I can help you write the note.`;
 }

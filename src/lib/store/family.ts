@@ -9,6 +9,7 @@ import { demoChecks } from "./demo-checks";
 import { createLocalStore } from "./local";
 import { dayKey, streakFrom } from "@/lib/roadmap";
 import { plusActions } from "@/lib/plus";
+import { diaryActions } from "./diary";
 
 export type AnimalId = "lion" | "koala" | "monkey" | "bear" | "bunny" | "fox";
 export const ANIMALS: AnimalId[] = ["lion", "koala", "monkey", "bear", "bunny", "fox"];
@@ -27,6 +28,8 @@ export type Kid = {
   streakDays: number;
   /** Days with any practice, "YYYY-MM-DD" on this phone's calendar. Drives the streak and the path. */
   practiced?: string[];
+  /** Daily practice minutes chosen by the parent (via the assistant); the grade default otherwise. */
+  minutes?: number;
 };
 
 export type Family = {
@@ -54,6 +57,8 @@ export const demoFamily: Family = {
 export const gradeLabel = (grade: Grade) => (grade === -1 ? "Pre-K" : grade === 0 ? "Kindergarten" : `Grade ${grade}`);
 export const archetypeFor = (grade: Grade): Archetype => (grade === -1 ? "explorer" : grade <= 1 ? "builder" : "reader");
 export const minutesFor = (grade: Grade) => (grade === -1 ? 5 : grade <= 1 ? 10 : 15);
+/** The child's daily minutes: the parent's choice, or the grade default. */
+export const kidMinutes = (kid: Pick<Kid, "grade" | "minutes">) => kid.minutes ?? minutesFor(kid.grade);
 
 const store = createLocalStore<Family>(KEY, EMPTY, (parsed) => ({ ...EMPTY, ...(parsed as Family) }));
 const { read, write } = store;
@@ -81,6 +86,11 @@ export const familyActions = {
       }),
     });
   },
+  /** Practice logged by the parent (e.g. "we read together for 20 minutes"): counts for today. */
+  markPracticed(id: string) {
+    const family = read();
+    write({ ...family, kids: family.kids.map((k) => (k.id === id ? { ...k, practiced: markToday(k.practiced) } : k)) });
+  },
   removeKid(id: string) {
     const family = read();
     const kids = family.kids.filter((k) => k.id !== id);
@@ -98,10 +108,14 @@ export const familyActions = {
     // A few weeks of past checks, so Home and Progress show growth straight away.
     checkActions.replaceAll(demoChecks(new Date(), { mia: "demo-mia", leo: "demo-leo" }));
     plusActions.reset();
+    diaryActions.clearAll();
+    diaryActions.add({ kidId: "demo-mia", text: "Read a library book together for 20 minutes.", minutes: 20 });
+    diaryActions.add({ kidId: "demo-mia", text: "Mixing up b and d in her homework." });
   },
   clearAll() {
     write(EMPTY);
     plusActions.reset();
+    diaryActions.clearAll();
   },
 };
 
