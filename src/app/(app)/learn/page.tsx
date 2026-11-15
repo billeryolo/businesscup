@@ -86,7 +86,7 @@ function GameCard({
 }
 
 // The 1-minute check sits above the games: it is how a parent sees where the child is today.
-function CheckCard({ kid }: { kid: Kid }) {
+function CheckCard() {
   return (
     <section>
       <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-night-soft">
@@ -102,17 +102,11 @@ function CheckCard({ kid }: { kid: Kid }) {
             <Icon name="book" size={38} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="flex flex-wrap items-center gap-2">
-              <span className="text-[17px] font-semibold leading-tight">
-                1-minute reading check
-              </span>
-              <span className="rounded-full bg-night px-2.5 py-0.5 text-[11px] font-semibold text-white">
-                1 min
-              </span>
+            <span className="block text-[17px] font-semibold leading-tight">
+              1-minute reading check
             </span>
             <span className="mt-1 block text-[13px] leading-snug text-night-soft">
-              {kid.name} reads a short story out loud. We count the words read
-              correctly.
+              Reads a short story out loud.
             </span>
           </span>
           <span
@@ -147,7 +141,7 @@ export default function LearnPage() {
       />
       <Stagger className="grid gap-6">
         {[
-          <CheckCard key="check" kid={kid} />,
+          <CheckCard key="check" />,
           ...SECTIONS.map((section) => (
             <section key={section}>
               <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-night-soft">
